@@ -13,7 +13,7 @@ namespace Basement.OEPFramework.UnityEngine
         public OnTimeUp onTimeUpEvent;
         public OnTimeUpVoid onTimeUpVoidEvent;
         
-        private static readonly List<Timer> _timers = new List<Timer>();
+        private static readonly List<Timer>[] _timers = new List<Timer>[64];
         private static DateTime _lastTime;
 
         private float _timeStep;
@@ -22,11 +22,17 @@ namespace Basement.OEPFramework.UnityEngine
         private bool _work;
         private bool _once;
         private bool _realtime;
+        private int _engineLoop;
         private IDroppableItem _dropper;
 
         static Timer()
         {
             _lastTime = DateTime.UtcNow;
+
+            for (int i = 0; i < 64; i++)
+            {
+                _timers[i] = new List<Timer>();
+            }
         }
 
         private void Call()
@@ -53,37 +59,37 @@ namespace Basement.OEPFramework.UnityEngine
             _work = true;
         }
 
-        public static Timer Create(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false)
+        public static Timer Create(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int? engineLoop = null)
         {
-            return new Timer(sec, func, obj, dropper, once);
+            return new Timer(sec, func, obj, dropper, once, false, engineLoop);
         }
 
-        public static Timer Create(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false)
+        public static Timer Create(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int? engineLoop = null)
         {
-            return new Timer(sec, func, dropper, once);
+            return new Timer(sec, func, dropper, once, false, engineLoop);
         }
 
-        public static Timer CreateRealtime(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false)
+        public static Timer CreateRealtime(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int? engineLoop = null)
         {
-            return new Timer(sec, func, obj, dropper, once, true);
+            return new Timer(sec, func, obj, dropper, once, true, engineLoop);
         }
 
-        public static Timer CreateRealtime(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false)
+        public static Timer CreateRealtime(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int? engineLoop = null)
         {
-            return new Timer(sec, func, dropper, once, true);
+            return new Timer(sec, func, dropper, once, true, engineLoop);
         }
 
-        private Timer(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, bool realtime = false)
+        private Timer(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, bool realtime = false, int? engineLoop = null)
         {
-            Init(sec, null, func, obj, dropper, once, realtime);
+            Init(sec, null, func, obj, dropper, once, realtime, engineLoop ?? Loops.TIMER);
         }
 
-        private Timer(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, bool realtime = false)
+        private Timer(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, bool realtime = false, int? engineLoop = null)
         {
-            Init(sec, func, null, null, dropper, once, realtime);
+            Init(sec, func, null, null, dropper, once, realtime, engineLoop ?? Loops.TIMER);
         }
 
-        private void Init(float sec, OnTimeUpVoid funcVoid, OnTimeUp func, object obj, IDroppableItem timerDropper, bool onceCall, bool realtimeTimer)
+        private void Init(float sec, OnTimeUpVoid funcVoid, OnTimeUp func, object obj, IDroppableItem timerDropper, bool onceCall, bool realtimeTimer, int engineLoop)
         {
             if (funcVoid != null)
                 onTimeUpVoidEvent = funcVoid;
@@ -94,6 +100,7 @@ namespace Basement.OEPFramework.UnityEngine
             _once = onceCall;
             _realtime = realtimeTimer;
             _firedObj = obj;
+            _engineLoop = engineLoop;
 
             if (Mathf.Approximately(sec, 0))
             {
@@ -116,18 +123,18 @@ namespace Basement.OEPFramework.UnityEngine
                 _dropper.onDrop += InternalDrop;
             }
 
-            Sync.Add(() => _timers.Add(this), Loops.TIMER);
+            Sync.Add(() => _timers[_engineLoop].Add(this), _engineLoop);
         }
 
-        public static void Process()
+        public static void Process(int loop)
         {
-            Sync.Process(Loops.TIMER);
+            Sync.Process(loop);
             var now = DateTime.UtcNow;
             var dt = Time.deltaTime;
             var dtReal = (float)(now - _lastTime).TotalSeconds;
             _lastTime = now;
-
-            foreach (var task in _timers)
+            
+            foreach (var task in _timers[loop])
                 task.TimerProcess(dt, dtReal);
         }
 
@@ -164,7 +171,7 @@ namespace Basement.OEPFramework.UnityEngine
             onTimeUpEvent = null;
             onTimeUpVoidEvent = null;
 
-            Sync.Add(() => _timers.Remove(this), Loops.TIMER);
+            Sync.Add(() => _timers[_engineLoop].Remove(this), _engineLoop);
 
             base.Drop();
         }
