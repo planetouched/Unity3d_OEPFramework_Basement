@@ -9,7 +9,7 @@ namespace Basement.Common
         public static readonly RawNode emptyNode = new RawNode();
         
         public string nodeKey { get; }
-        public int nodesCount => array != null ? array.Count : dictionary.Count;
+        public int nodesCount => IsArray() ? array.Count : dictionary.Count;
 
         private readonly object _rawData;
         private KeyValuePair<string, RawNode>[] _sortedCache;
