@@ -88,7 +88,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             return _map[elementName];
         }
 
-        public T GetElementComponent<T>(string elementName)
+        public T GetElementComponent<T>(string elementName) where T : Component
         {
             return _map[elementName].GetComponent<T>();
         }
