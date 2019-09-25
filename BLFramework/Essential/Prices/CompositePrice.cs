@@ -26,6 +26,8 @@ namespace Basement.BLFramework.Essential.Prices
 
         public override void Pay()
         {
+            if (!Check()) return;
+            
             foreach (var price in prices)
                 price.Value.Pay();
         }

@@ -5,36 +5,19 @@ namespace Basement.Common.Pool
 {
     public class ObjectPool<T> : IObjectPool where T : class
     {
+        public enum Items
+        {
+            All, Used, Unused
+        }
+        
         private readonly Dictionary<T, bool> _checker = new Dictionary<T, bool>();
         private readonly Queue<T> _queue = new Queue<T>();
-        private readonly object _locker = new object();
 
-        public int unusedObjectsCount
-        {
-            get
-            {
-                lock (_locker)
-                    return _queue.Count;
-            }
-        }
+        public int unusedObjectsCount => _queue.Count;
 
-        public int usedObjectsCount
-        {
-            get
-            {
-                lock (_locker)
-                    return _checker.Count - _queue.Count;
-            }
-        }
+        public int usedObjectsCount => _checker.Count - _queue.Count;
 
-        public int objectsCount
-        {
-            get
-            {
-                lock (_locker)
-                    return _checker.Count;
-            }
-        }
+        public int objectsCount => _checker.Count;
 
         private Func<T> _createFunc;
 
@@ -55,14 +38,13 @@ namespace Basement.Common.Pool
 
         public void Add(T obj)
         {
-            lock (_locker)
+            if (_checker.ContainsKey(obj))
             {
-                if (_checker.ContainsKey(obj))
-                    throw new Exception("Add(T obj)");
-                
-                _checker.Add(obj, true);
-                _queue.Enqueue(obj);
+                throw new Exception("Add(T obj)");
             }
+
+            _checker.Add(obj, true);
+            _queue.Enqueue(obj);
         }
 
         public void ReturnObj(object obj)
@@ -72,65 +54,68 @@ namespace Basement.Common.Pool
         
         public void Return(T obj)
         {
-            lock (_locker)
+            if (_checker[obj])
             {
-                if (_checker[obj])
-                    throw new Exception("Return(T obj)");
-
-                _checker[obj] = true;
-                _queue.Enqueue(obj);
+                throw new Exception("Return(T obj)");
             }
+
+            _checker[obj] = true;
+            _queue.Enqueue(obj);
         }
 
         public T Take()
         {
-            lock (_locker)
+            T obj;
+
+            if (_queue.Count == 0)
             {
-                T obj;
+                if (_createFunc == null) return null;
 
-                if (_queue.Count == 0)
+                obj = _createFunc();
+                _checker.Add(obj, false);
+            }
+            else
+            {
+                obj = _queue.Dequeue();
+                _checker[obj] = false;
+            }
+
+            return obj;
+        }
+
+        public void ForEach(Action<T> iterationAction, Items items)
+        {
+            if (items == Items.All || items == Items.Used)
+            {
+                foreach (var pair in _checker)
                 {
-                    if (_createFunc == null)
-                        return null;
-
-                    obj = _createFunc();
-                    _checker.Add(obj, false);
+                    if (!pair.Value || items == Items.All)
+                    {
+                        iterationAction(pair.Key);
+                    }
                 }
-                else
+            }
+            else
+            {
+                foreach (var item in _queue)
                 {
-                    obj = _queue.Dequeue();
-                    _checker[obj] = false;
+                    iterationAction(item);
                 }
-
-                return obj;
             }
         }
 
-        public bool ForEach(Action<T> iterationAction)
+        public void RemoveAll(Action<T> destroyAction = null)
         {
-            if (usedObjectsCount > 0)
-                return false;
-
-            foreach (var item in _queue)
-                iterationAction(item);
-
-            return true;
-        }
-
-        public bool RemoveAll(Action<T> destroyAction = null)
-        {
-            if (usedObjectsCount > 0)
-                return false;
-
             if (destroyAction != null)
             {
-                foreach (var item in _queue)
-                    destroyAction(item);
+                foreach (var item in _checker)
+                {
+                    destroyAction(item.Key);
+                }
             }
 
             _queue.Clear();
             _checker.Clear();
-            return true;
         }
     }
 }
