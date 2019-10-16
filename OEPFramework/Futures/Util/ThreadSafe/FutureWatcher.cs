@@ -22,8 +22,7 @@ namespace Basement.OEPFramework.Futures.Util.ThreadSafe
 
         private void InnerRemoveFuture(IFuture future)
         {
-            bool value;
-            if (_futures.TryRemove(future, out value))
+            if (_futures.TryRemove(future, out _))
             {
                 future.RemoveListener(InnerRemoveFuture);
             }

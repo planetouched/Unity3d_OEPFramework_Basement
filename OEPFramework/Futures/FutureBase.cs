@@ -19,8 +19,8 @@ namespace Basement.OEPFramework.Futures
         public bool isDone { get; protected set; }
         public bool wasRun { get; protected set; }
 
-        event Action<IFuture> onComplete;
-        event Action<IFuture> onRun;
+        private event Action<IFuture> onComplete;
+        private event Action<IFuture> onRun;
         protected bool promise;
 
         public override int GetHashCode()
