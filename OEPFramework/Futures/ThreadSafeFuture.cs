@@ -4,7 +4,7 @@ namespace Basement.OEPFramework.Futures
 {
     public abstract class ThreadSafeFuture : IFuture
     {
-        private object _syncRoot { get; }
+        private readonly object _syncRoot;
         public bool isCancelled { get; private set; }
         public bool isDone { get; private set; }
         public bool wasRun { get; private set; }
@@ -26,8 +26,8 @@ namespace Basement.OEPFramework.Futures
 
         private void CallHandlers()
         {
-            _onComplete?.Invoke(this);
-            _onComplete = null;
+            onComplete?.Invoke(this);
+            onComplete = null;
         }
 
         public IFuture AddListenerOnRun(Action<IFuture> method)
@@ -42,7 +42,9 @@ namespace Basement.OEPFramework.Futures
             }
 
             if (call)
+            {
                 method(this);
+            }
 
             return this;
         }
@@ -50,7 +52,9 @@ namespace Basement.OEPFramework.Futures
         public void RemoveListenerOnRun(Action<IFuture> method)
         {
             lock (_syncRoot)
+            {
                 onRun -= method;
+            }
         }
 
         public IFuture AddListener(Action<IFuture> method)
@@ -72,7 +76,7 @@ namespace Basement.OEPFramework.Futures
 
         public void RemoveListener(Action<IFuture> method)
         {
-            lock (syncRoot)
+            lock (_syncRoot)
                 onComplete -= method;
         }
 
@@ -80,8 +84,7 @@ namespace Basement.OEPFramework.Futures
         {
             lock (_syncRoot)
             {
-                if (_promise || isCancelled || isDone)
-                    return;
+                if (_promise || isCancelled || isDone) return;
                 isCancelled = true;
             }
 
@@ -93,8 +96,7 @@ namespace Basement.OEPFramework.Futures
         {
             lock (_syncRoot)
             {
-                if (isCancelled || isDone)
-                    return;
+                if (isCancelled || isDone) return;
                 isDone = true;
             }
 
