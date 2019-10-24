@@ -7,6 +7,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
     public abstract class LoopBehaviour : DroppableItemBase, ILoopable
     {
         public bool callActions { get; protected set; }
+        public bool callWhenAdded { get; protected set; }
 
         private readonly Action[] _actions;
         private readonly int[] _orders;
@@ -18,13 +19,14 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             callActions = true;
         }
 
-        public void LoopOn(int loopType, Action action)
+        public void LoopOn(int loopType, Action action, bool callNow = false)
         {
             if (dropped)
                 throw new Exception("Dropped");
 
             if (_actions[loopType] == null)
             {
+                callWhenAdded = callNow;
                 EngineLoopManager.GetEngineLoop(loopType).AddToLast(this);
                 _actions[loopType] = action;
             }

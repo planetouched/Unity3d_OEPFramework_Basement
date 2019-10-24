@@ -99,13 +99,20 @@ namespace Basement.OEPFramework.UnityEngine.Loop
 
             if (_toAdd.Count > 0)
             {
+                var newLoops = new List<LoopBehaviour>();
+                
                 foreach (var behaviour in _toAdd)
                 {
                     _items.Add(behaviour);
+
+                    if (behaviour.callWhenAdded)
+                    {
+                        newLoops.Add(behaviour);
+                    }
+
                     behaviour.SetOrder(_loopType, _behaviourOrder++);
                 }
 
-                var newLoops = new List<LoopBehaviour>(_toAdd);
                 _toAdd.Clear();
                 return newLoops;
             }
