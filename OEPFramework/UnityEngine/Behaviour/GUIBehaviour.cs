@@ -93,7 +93,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             return _map.TryGetValue(elementName, out element);
         }
         
-        public bool TryGetElementСomponent<T>(string elementName, out T component) where T : Component
+        public bool TryGetElementComponent<T>(string elementName, out T component) where T : Component
         {
             if (_map.TryGetValue(elementName, out var element))
             {
