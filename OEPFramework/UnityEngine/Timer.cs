@@ -126,11 +126,11 @@ namespace Basement.OEPFramework.UnityEngine
             Sync.Add(() => _timers[_engineLoop].Add(this), _engineLoop);
         }
 
-        public static void Process(int loop)
+        public static void Process(int loop, float deltaTime)
         {
             Sync.Process(loop);
             var now = DateTime.UtcNow;
-            var dt = Time.deltaTime;
+            var dt = deltaTime;
             var dtReal = (float)(now - _lastTime).TotalSeconds;
             _lastTime = now;
             
