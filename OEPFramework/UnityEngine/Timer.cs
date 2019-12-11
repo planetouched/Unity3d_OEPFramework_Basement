@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Basement.OEPFramework.UnityEngine.Loop;
 using Basement.OEPFramework.UnityEngine._Base;
-using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 using UnityEngine;
 
 namespace Basement.OEPFramework.UnityEngine
@@ -127,11 +126,11 @@ namespace Basement.OEPFramework.UnityEngine
             Sync.Add(() => _timers[_engineLoop].Add(this), _engineLoop);
         }
 
-        public static void Process(int loop, ITimeData timeData)
+        public static void Process(int loop)
         {
             Sync.Process(loop);
             var now = DateTime.UtcNow;
-            var dt = timeData.deltaTime;
+            var dt = Time.deltaTime;
             var dtReal = (float)(now - _lastTime).TotalSeconds;
             _lastTime = now;
             

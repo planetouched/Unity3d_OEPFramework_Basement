@@ -1,7 +1,6 @@
 ﻿using System;
 using Basement.OEPFramework.UnityEngine.Loop;
 using Basement.OEPFramework.UnityEngine._Base;
-using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 
 namespace Basement.OEPFramework.UnityEngine.Behaviour
 {
@@ -10,17 +9,17 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
         public bool callActions { get; protected set; }
         public bool callWhenAdded { get; protected set; }
 
-        private readonly Action<ITimeData>[] _actions;
+        private readonly Action[] _actions;
         private readonly int[] _orders;
 
         protected LoopBehaviour()
         {
-            _actions = new Action<ITimeData>[EngineLoopManager.LoopsCount()];
+            _actions = new Action[EngineLoopManager.LoopsCount()];
             _orders = new int[EngineLoopManager.LoopsCount()];
             callActions = true;
         }
 
-        public void LoopOn(int loopType, Action<ITimeData> action, bool callNow = false)
+        public void LoopOn(int loopType, Action action, bool callNow = false)
         {
             if (dropped)
                 throw new Exception("Dropped");
@@ -43,10 +42,10 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             return _orders[loopType];
         }
 
-        public void ExecuteAction(int loopType, ITimeData timeData)
+        public void ExecuteAction(int loopType)
         {
             if (_actions[loopType] != null)
-                _actions[loopType](timeData);
+                _actions[loopType]();
         }
 
         public void LoopOff(int loopType)

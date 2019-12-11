@@ -1,11 +1,10 @@
 ﻿using System;
-using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 
 namespace Basement.OEPFramework.UnityEngine.Behaviour
 {
     public interface ILoopable
     {
-        void LoopOn(int loopType, Action<ITimeData> action, bool callNow = false);
+        void LoopOn(int loopType, Action action, bool callNow = false);
         void LoopOff(int loopType);
         /*
         void SetIndexToLast(int loopType);

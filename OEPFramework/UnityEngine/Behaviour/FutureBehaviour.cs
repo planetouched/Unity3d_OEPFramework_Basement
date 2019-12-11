@@ -2,7 +2,6 @@
 using Basement.OEPFramework.Futures;
 using Basement.OEPFramework.UnityEngine.Transit;
 using Basement.OEPFramework.UnityEngine._Base;
-using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 
 namespace Basement.OEPFramework.UnityEngine.Behaviour
 {
@@ -39,7 +38,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             return _hashCode;
         }
 
-        public void LoopOn(int loopType, Action<ITimeData> action, bool callNow = false)
+        public void LoopOn(int loopType, Action action, bool callNow = false)
         {
             _controlLoopTransit.LoopOn(loopType, action, callNow);
         }
