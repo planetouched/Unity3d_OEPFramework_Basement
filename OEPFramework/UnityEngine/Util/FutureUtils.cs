@@ -4,6 +4,7 @@ using Basement.OEPFramework.Futures;
 using Basement.OEPFramework.Futures.Coroutine;
 using Basement.OEPFramework.Futures.Util;
 using Basement.OEPFramework.UnityEngine.Futures;
+using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 
 namespace Basement.OEPFramework.UnityEngine.Util
 {
@@ -54,7 +55,7 @@ namespace Basement.OEPFramework.UnityEngine.Util
             return new DummyBreakFuture();
         }
 
-        public static IFuture UpdateLoop(Action<UpdateLoopFuture> updateAction)
+        public static IFuture UpdateLoop(Action<UpdateLoopFuture, ITimeData> updateAction)
         {
             return new UpdateLoopFuture(updateAction);
         }

@@ -1,14 +1,15 @@
 ﻿using System;
 using Basement.OEPFramework.UnityEngine.Behaviour;
 using Basement.OEPFramework.UnityEngine.Loop;
+using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 
 namespace Basement.OEPFramework.UnityEngine.Futures
 {
     public class UpdateLoopFuture : FutureBehaviour
     {
-        private Action<UpdateLoopFuture> _updateAction;
+        private Action<UpdateLoopFuture, ITimeData> _updateAction;
         
-        public UpdateLoopFuture(Action<UpdateLoopFuture> updateAction)
+        public UpdateLoopFuture(Action<UpdateLoopFuture, ITimeData> updateAction)
         {
             _updateAction = updateAction;
         }
@@ -19,9 +20,9 @@ namespace Basement.OEPFramework.UnityEngine.Futures
             Play();
         }
 
-        private void Update()
+        private void Update(ITimeData timeData)
         {
-            _updateAction(this);
+            _updateAction(this, timeData);
         }
 
         protected override void OnComplete()

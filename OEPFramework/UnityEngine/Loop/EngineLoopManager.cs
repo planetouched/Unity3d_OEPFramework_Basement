@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Basement.OEPFramework.UnityEngine.Loop.TimeData;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -41,12 +42,12 @@ namespace Basement.OEPFramework.UnityEngine.Loop
             return loop;
         }
 
-        public static void Execute(int loopType)
+        public static void Execute(int loopType, ITimeData timeData)
         {
 #if UNITY_EDITOR
             if (!CheckInit()) return;
 #endif
-            _loops[loopType].CallAllBehavioursActions();
+            _loops[loopType].CallAllBehavioursActions(timeData);
         }
     }
 }

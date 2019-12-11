@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Basement.OEPFramework.UnityEngine.Behaviour;
+using Basement.OEPFramework.UnityEngine.Loop.TimeData;
+using UnityEngine;
 
 namespace Basement.OEPFramework.UnityEngine.Loop
 {
@@ -51,20 +53,20 @@ namespace Basement.OEPFramework.UnityEngine.Loop
                 _toRemove.Add(behaviour);
         }
 
-        public void CallAllBehavioursActions()
+        public void CallAllBehavioursActions(ITimeData timeData)
         {
             Sync.Process(_loopType);
             
             ModifyIfNeeded();
 
-            InnerCall(_items);
+            InnerCall(_items, timeData);
 
             for (;;)
             {
                 var newLoops = ModifyIfNeeded();
                 if (newLoops != null)
                 {
-                    InnerCall(newLoops);
+                    InnerCall(newLoops, timeData);
                 }
                 else
                 {
@@ -73,13 +75,13 @@ namespace Basement.OEPFramework.UnityEngine.Loop
             }
         }
 
-        private void InnerCall(List<LoopBehaviour> loops)
+        private void InnerCall(List<LoopBehaviour> loops, ITimeData timeData = null)
         {
             for (int i = 0; i < loops.Count; i++)
             {
                 var current = loops[i];
                 if (current != null && !current.dropped && current.callActions)
-                    current.ExecuteAction(_loopType);
+                    current.ExecuteAction(_loopType, timeData);
             }
         }
 
