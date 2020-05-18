@@ -2,7 +2,7 @@
 
 namespace Basement.OEPFramework.Futures.Util
 {
-    public class CompositeFuture : FutureBase
+    public class CompositeFuture : FutureBase, IFutureCollection
     {
         public int futuresCount => _futures.Count;
 

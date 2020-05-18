@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace Basement.OEPFramework.Futures.Util
 {
-    public class FutureQueue
+    public class FutureQueue : IFutureContainer
     {
         private readonly List<IFuture> _queueFutures = new List<IFuture>();
         private IFuture _current;
         public int futuresCount => _queueFutures.Count;
         public event Action<IFuture> onFutureComplete;
 
-        public IFuture Add(IFuture future)
+        public void AddFuture(IFuture future)
         {
             if (future.isDone || future.isCancelled || future.wasRun)
                 throw new Exception("future already run or completed");
@@ -23,8 +23,6 @@ namespace Basement.OEPFramework.Futures.Util
                 _current = future;
                 future.Run();
             }
-
-            return future;
         }
 
         private void FutureComplete(IFuture f)

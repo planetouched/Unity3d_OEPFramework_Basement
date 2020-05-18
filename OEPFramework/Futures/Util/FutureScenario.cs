@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Basement.OEPFramework.Futures.Util
 {
-    public class FutureScenario
+    public class FutureScenario : IFutureContainer
     {
         private readonly List<CompositeFuture> _compositeFutures = new List<CompositeFuture>();
         private CompositeFuture _current;

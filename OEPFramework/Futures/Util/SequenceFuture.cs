@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Basement.OEPFramework.Futures.Util
 {
-    public class SequenceFuture : FutureBase
+    public class SequenceFuture : FutureBase, IFutureCollection
     {
         private readonly List<IFuture> _futures = new List<IFuture>();
         
