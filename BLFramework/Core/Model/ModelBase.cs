@@ -6,6 +6,8 @@ using System.Collections.Specialized;
 using Basement.BLFramework.Core.Context;
 using Basement.BLFramework.Core.ThroughEvent;
 using Basement.Common;
+using Game.Models;
+
 #if REFVIEW
 using Basement.Common.Util;
 #endif
@@ -149,7 +151,7 @@ namespace Basement.BLFramework.Core.Model
             return GetEnumerator();
         }
         
-        public void Call(EventCategory category, object args)
+        public void Call(EventCategory category, object args = null)
         {
             var models = GetModelPath(true);
             Event.Call(category, models, args, GetContext());
