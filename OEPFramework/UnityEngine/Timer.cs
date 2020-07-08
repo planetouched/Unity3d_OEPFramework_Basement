@@ -59,34 +59,34 @@ namespace Basement.OEPFramework.UnityEngine
             _work = true;
         }
 
-        public static Timer Create(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int? engineLoop = null)
+        public static Timer Create(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
             return new Timer(sec, func, obj, dropper, once, false, engineLoop);
         }
 
-        public static Timer Create(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int? engineLoop = null)
+        public static Timer Create(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
             return new Timer(sec, func, dropper, once, false, engineLoop);
         }
 
-        public static Timer CreateRealtime(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int? engineLoop = null)
+        public static Timer CreateRealtime(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
             return new Timer(sec, func, obj, dropper, once, true, engineLoop);
         }
 
-        public static Timer CreateRealtime(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int? engineLoop = null)
+        public static Timer CreateRealtime(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
             return new Timer(sec, func, dropper, once, true, engineLoop);
         }
 
-        private Timer(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, bool realtime = false, int? engineLoop = null)
+        private Timer(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, bool realtime = false, int engineLoop = -1)
         {
-            Init(sec, null, func, obj, dropper, once, realtime, engineLoop ?? Loops.TIMER);
+            Init(sec, null, func, obj, dropper, once, realtime, engineLoop == -1 ? Loops.TIMER : engineLoop);
         }
 
-        private Timer(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, bool realtime = false, int? engineLoop = null)
+        private Timer(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, bool realtime = false, int engineLoop = -1)
         {
-            Init(sec, func, null, null, dropper, once, realtime, engineLoop ?? Loops.TIMER);
+            Init(sec, func, null, null, dropper, once, realtime, engineLoop == -1 ? Loops.TIMER : engineLoop);
         }
 
         private void Init(float sec, OnTimeUpVoid funcVoid, OnTimeUp func, object obj, IDroppableItem timerDropper, bool onceCall, bool realtimeTimer, int engineLoop)
