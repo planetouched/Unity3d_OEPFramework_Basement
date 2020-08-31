@@ -15,13 +15,12 @@ namespace Basement.OEPFramework.Futures
         private static int _globalHashCode;
         private readonly int _hashCode;
 
-        public object syncRoot { get; }
         public bool isCancelled { get; protected set; }
         public bool isDone { get; protected set; }
         public bool wasRun { get; protected set; }
 
-        event Action<IFuture> onComplete;
-        event Action<IFuture> onRun;
+        private event Action<IFuture> onComplete;
+        private event Action<IFuture> onRun;
         protected bool promise;
 
         public override int GetHashCode()
@@ -31,21 +30,18 @@ namespace Basement.OEPFramework.Futures
 
         protected FutureBase()
         {
-            syncRoot = new object();
-            _hashCode = Interlocked.Increment(ref _globalHashCode);
+            _hashCode = _globalHashCode++;
         }
 
         protected void CallRunHandlers()
         {
-            if (onRun != null)
-                onRun(this);
+            onRun?.Invoke(this);
             onRun = null;
         }
 
         protected void CallHandlers()
         {
-            if (onComplete != null)
-                onComplete(this);
+            onComplete?.Invoke(this);
             onComplete = null;
         }
 

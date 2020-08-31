@@ -4,7 +4,6 @@ namespace Basement.OEPFramework.Futures
 {
     public interface IFuture
     {
-        object syncRoot { get; }
         bool isCancelled { get; }
         bool isDone { get; }
         bool wasRun { get; }

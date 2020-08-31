@@ -82,6 +82,27 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             _map = new Dictionary<string, GameObject>();
             InnerCreateMap(gameObject);
         }
+        
+        public bool HasElement(string elementName)
+        {
+            return _map.ContainsKey(elementName);
+        }
+        
+        public bool TryGetElement(string elementName, out GameObject element)
+        {
+            return _map.TryGetValue(elementName, out element);
+        }
+        
+        public bool TryGetElementComponent<T>(string elementName, out T component) where T : Component
+        {
+            if (_map.TryGetValue(elementName, out var element))
+            {
+                component = element.GetComponent<T>();
+                return true;
+            }
+            component = null;
+            return false;
+        }
 
         public GameObject GetElement(string elementName)
         {

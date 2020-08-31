@@ -2,16 +2,11 @@
 
 namespace Basement.OEPFramework.Futures.Util
 {
-    public class CompositeFuture : FutureBase
+    public class CompositeFuture : FutureBase, IFutureCollection
     {
         public int futuresCount => _futures.Count;
 
         private readonly List<IFuture> _futures = new List<IFuture>();
-
-        public List<IFuture> GetFuturesCopyList()
-        {
-            return new List<IFuture>(_futures);
-        }
 
         public CompositeFuture(IEnumerable<IFuture> futures)
         {
@@ -33,8 +28,8 @@ namespace Basement.OEPFramework.Futures.Util
         
         public override void Cancel()
         {
-            if (promise || isCancelled || isDone)
-                return;
+            if (promise || isCancelled || isDone) return;
+            
             isCancelled = true;
             wasRun = false;
             var copy = GetFuturesCopyList();
@@ -43,6 +38,7 @@ namespace Basement.OEPFramework.Futures.Util
             foreach (var future in copy)
             {
                 if (future.isCancelled) continue;
+                
                 future.RemoveListener(OnFutureComplete);
                 future.Cancel();
             }
@@ -52,8 +48,7 @@ namespace Basement.OEPFramework.Futures.Util
 
         public void AddFuture(IFuture future)
         {
-            if (wasRun || isDone || isCancelled || future.isDone || future.isCancelled)
-                return;
+            if (wasRun || isDone || isCancelled || future.isDone || future.isCancelled) return;
 
             _futures.Add(future);
             future.AddListener(OnFutureComplete);
@@ -65,6 +60,7 @@ namespace Basement.OEPFramework.Futures.Util
             future.RemoveListener(OnFutureComplete);
 
             if (_futures.Count > 0) return;
+            
             isDone = true;
             wasRun = false;
 
@@ -74,9 +70,9 @@ namespace Basement.OEPFramework.Futures.Util
         public override IFuture Run()
         {
             if (wasRun) return this;
+            
             wasRun = true;
-            var copyList = GetFuturesCopyList();
-            isDone = copyList.Count == 0;
+            isDone = _futures.Count == 0;
 
             CallRunHandlers();
 
@@ -87,10 +83,17 @@ namespace Basement.OEPFramework.Futures.Util
             }
             else
             {
-                foreach (var future in copyList)
+                foreach (var future in GetFuturesCopyList())
+                {
                     future.Run();
+                }
             }
             return this;
+        }
+        
+        private List<IFuture> GetFuturesCopyList()
+        {
+            return new List<IFuture>(_futures);
         }
     }
 }

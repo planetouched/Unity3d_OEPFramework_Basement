@@ -38,9 +38,9 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             return _hashCode;
         }
 
-        public void LoopOn(int loopType, Action action)
+        public void LoopOn(int loopType, Action action, bool callNow = false)
         {
-            _controlLoopTransit.LoopOn(loopType, action);
+            _controlLoopTransit.LoopOn(loopType, action, callNow);
         }
 
         public void LoopOff(int loopType)

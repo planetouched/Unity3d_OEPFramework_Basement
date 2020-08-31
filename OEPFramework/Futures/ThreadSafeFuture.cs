@@ -1,77 +1,69 @@
 ﻿using System;
-using System.Threading;
 
 namespace Basement.OEPFramework.Futures
 {
     public abstract class ThreadSafeFuture : IFuture
     {
-        static int _globalHashCode;
-        private readonly int _hashCode;
-
-        public object syncRoot { get; }
+        private readonly object _syncRoot;
         public bool isCancelled { get; private set; }
         public bool isDone { get; private set; }
         public bool wasRun { get; private set; }
 
-        private event Action<IFuture> _onComplete;
-        private event Action<IFuture> _onRun;
-        private bool _promise;
+        private event Action<IFuture> onComplete;
+        private event Action<IFuture> onRun;
+        private volatile bool _promise;
 
         protected ThreadSafeFuture ()
         {
-            syncRoot = new object();
-            _hashCode = Interlocked.Increment(ref _globalHashCode);
+            _syncRoot = new object();
         }
 
-        public override int GetHashCode()
+        private void CallRunHandlers()
         {
-            return _hashCode;
+            onRun?.Invoke(this);
+            onRun = null;
         }
 
-        void CallRunHandlers()
+        private void CallHandlers()
         {
-            if (_onRun != null)
-                _onRun(this);
-            _onRun = null;
-        }
-
-        void CallHandlers()
-        {
-            if (_onComplete != null)
-                _onComplete(this);
-            _onComplete = null;
+            onComplete?.Invoke(this);
+            onComplete = null;
         }
 
         public IFuture AddListenerOnRun(Action<IFuture> method)
         {
             bool call = false;
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 if (!wasRun)
-                    _onRun += method;
+                    onRun += method;
                 else
                     call = true;
             }
 
             if (call)
+            {
                 method(this);
+            }
 
             return this;
         }
 
         public void RemoveListenerOnRun(Action<IFuture> method)
         {
-            lock (syncRoot)
-                _onRun -= method;
+            lock (_syncRoot)
+            {
+                onRun -= method;
+            }
         }
 
         public IFuture AddListener(Action<IFuture> method)
         {
             bool call = false;
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 if (!isDone && !isCancelled)
-                    _onComplete += method;
+                    onComplete += method;
                 else
                     call = true;
             }
@@ -82,19 +74,17 @@ namespace Basement.OEPFramework.Futures
             return this;
         }
 
-
         public void RemoveListener(Action<IFuture> method)
         {
-            lock (method)
-                _onComplete -= method;
+            lock (_syncRoot)
+                onComplete -= method;
         }
 
         public void Cancel()
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
-                if (_promise || isCancelled || isDone)
-                    return;
+                if (_promise || isCancelled || isDone) return;
                 isCancelled = true;
             }
 
@@ -104,10 +94,9 @@ namespace Basement.OEPFramework.Futures
 
         public void Complete()
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
-                if (isCancelled || isDone)
-                    return;
+                if (isCancelled || isDone) return;
                 isDone = true;
             }
 
@@ -117,7 +106,7 @@ namespace Basement.OEPFramework.Futures
 
         public IFuture Run()
         {
-            lock (syncRoot)
+            lock (_syncRoot)
             {
                 if (wasRun || isCancelled || isDone) return this;
                 wasRun = true;
