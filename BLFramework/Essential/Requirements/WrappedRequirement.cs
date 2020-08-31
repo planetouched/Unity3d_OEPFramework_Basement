@@ -6,7 +6,7 @@ namespace Basement.BLFramework.Essential.Requirements
 {
     public abstract class WrappedRequirement : Requirement
     {
-        protected IRequirement innerRequirement;
+        public IRequirement innerRequirement;
 
         protected WrappedRequirement(RawNode node, IContext context) : base(node, context)
         {
