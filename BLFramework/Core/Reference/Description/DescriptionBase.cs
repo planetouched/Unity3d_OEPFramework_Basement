@@ -87,7 +87,7 @@ namespace Basement.BLFramework.Core.Reference.Description
 
         public IContext GetContext()
         {
-            return _weakContext.obj;
+            return _weakContext?.obj;
         }
 
         public void SetParent(IDescription parent)
