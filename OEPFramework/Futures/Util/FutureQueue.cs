@@ -5,7 +5,7 @@ namespace Basement.OEPFramework.Futures.Util
 {
     public class FutureQueue : IFutureContainer
     {
-        private readonly List<IFuture> _queueFutures = new List<IFuture>();
+        private readonly Queue<IFuture> _queueFutures = new Queue<IFuture>();
         private IFuture _current;
         public int futuresCount => _queueFutures.Count;
         public event Action<IFuture> onFutureComplete;
@@ -15,7 +15,7 @@ namespace Basement.OEPFramework.Futures.Util
             if (future.isDone || future.isCancelled || future.wasRun)
                 throw new Exception("future already run or completed");
 
-            _queueFutures.Add(future);
+            _queueFutures.Enqueue(future);
             future.AddListener(FutureComplete);
             
             if (_queueFutures.Count == 1)
@@ -27,40 +27,33 @@ namespace Basement.OEPFramework.Futures.Util
 
         private void FutureComplete(IFuture f)
         {
-            _queueFutures.Remove(f);
+            _queueFutures.Dequeue();
+            _current = null;
             
             if (_queueFutures.Count > 0)
             {
-                if (_current == f)
-                    _current = _queueFutures[0];
+                _current = _queueFutures.Peek();
             }
-            else
-                _current = null;
 
-            if (onFutureComplete != null)
-                onFutureComplete(f);
-            
-            if (_current != null)
-                _current.Run();
+            onFutureComplete?.Invoke(f);
+            _current?.Run();
         }
 
         public void CancelCurrent()
         {
-            if (_current != null)
-                _current.Cancel();
+            _current?.Cancel();
         }
 
         public void Cancel()
         {
-            var copy = new List<IFuture>(_queueFutures);
-            _queueFutures.Clear();
-
-            foreach (var future in copy)
+            foreach (var future in new List<IFuture>(_queueFutures))
             {
                 future.RemoveListener(FutureComplete);
                 future.Cancel();
             }
-
+            
+            _queueFutures.Clear();
+            
             onFutureComplete = null;
         }
     }
