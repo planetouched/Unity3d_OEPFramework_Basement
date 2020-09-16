@@ -42,20 +42,14 @@ namespace Basement.BLFramework.Core.ThroughEvent
 
         void InnerDetach(EventCategory category, EventHandler func)
         {
-            IList<KeyValuePair<int, EventHandler>> list;
-            if (_handlers.TryGetValue(category, out list))
+            if (_handlers.TryGetValue(category, out var list))
             {
-                if (list.Count == 1)
-                    list.RemoveAt(0);
-                else
+                for (int i = 0; i < list.Count; i++)
                 {
-                    for (int i = 0; i < list.Count; i++)
+                    if (list[i].Value == func)
                     {
-                        if (list[i].Value == func)
-                        {
-                            list.RemoveAt(i);
-                            break;
-                        }
+                        list.RemoveAt(i);
+                        break;
                     }
                 }
             }
