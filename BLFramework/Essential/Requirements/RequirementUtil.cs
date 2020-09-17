@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Basement.BLFramework.Essential.Requirements;
 
-namespace Basement.BLFramework.Essential.Rewards
+namespace Basement.BLFramework.Essential.Requirements
 {
     public static class RequirementUtil
     {
@@ -10,15 +9,11 @@ namespace Basement.BLFramework.Essential.Rewards
             if (requirements == null)
                 requirements = new List<IRequirement>();
 
-            var wr = requirement as WrappedRequirement;
-
-            if (wr != null)
+            if (requirement is WrappedRequirement wr)
                 Decomposite(wr.innerRequirement, requirements);
             else
             {
-                var cr = requirement as CompositeRequirement;
-
-                if (cr != null)
+                if (requirement is CompositeRequirement cr)
                 {
                     foreach (var r in cr.requirements)
                         Decomposite(r.Value, requirements);

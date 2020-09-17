@@ -10,15 +10,11 @@ namespace Basement.BLFramework.Essential.Rewards
             if (rewards == null)
                 rewards = new List<IReward>();
 
-            var wr = reward as WrappedReward;
-
-            if (wr != null)
+            if (reward is WrappedReward wr)
                 Decomposite(wr.innerReward, rewards);
             else
             {
-                var cr = reward as CompositeReward;
-
-                if (cr != null)
+                if (reward is CompositeReward cr)
                 {
                     foreach (var r in cr.rewards)
                         Decomposite(r.Value, rewards);
@@ -35,15 +31,11 @@ namespace Basement.BLFramework.Essential.Rewards
             if (rewards == null)
                 rewards = new List<IRewardResult>();
 
-            var wr = reward as WrappedRewardResult;
-
-            if (wr != null)
+            if (reward is WrappedRewardResult wr)
                 DecompositeResult(wr.rewardResult, rewards);
             else
             {
-                var cr = reward as CompositeRewardResult;
-
-                if (cr != null)
+                if (reward is CompositeRewardResult cr)
                 {
                     foreach (var r in cr.results)
                         DecompositeResult(r, rewards);
