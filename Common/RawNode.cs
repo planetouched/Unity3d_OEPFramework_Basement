@@ -39,7 +39,46 @@ namespace Basement.Common
                 return Convert.ToInt32(value);
             return defaultValue;
         }
-
+        
+        public int GetInt16(string key, int defaultValue = 0)
+        {
+            object value;
+            if (_rawData != null && dictionary.TryGetValue(key, out value))
+                return Convert.ToInt16(value);
+            return defaultValue;
+        }
+        public long[] GetLongArray(string key, long[] defaultValue = null)
+        {
+            defaultValue = defaultValue ?? new long[0];
+            object value = null;
+            if (_rawData != null)
+                dictionary.TryGetValue(key, out value);
+            return value == null ? defaultValue : new RawNode(value).GetLongArray();
+        }
+        public long[] GetLongArray()
+        {
+            if (_rawData == null) return new long[0];
+            var ret = new List<long>();
+            foreach (var e in (List<object>)_rawData)
+                ret.Add(Convert.ToInt64(e));
+            return ret.ToArray();
+        }
+        public bool[] GetBoolArray(string key, bool[] defaultValue = null)
+        {
+            defaultValue = defaultValue ?? new bool[0];
+            object value = null;
+            if (_rawData != null)
+                dictionary.TryGetValue(key, out value);
+            return value == null ? defaultValue : new RawNode(value).GetBoolArray();
+        }
+        public bool[] GetBoolArray()
+        {
+            if (_rawData == null) return new bool[0];
+            var ret = new List<bool>();
+            foreach (var e in (List<object>)_rawData)
+                ret.Add(Convert.ToBoolean(e));
+            return ret.ToArray();
+        }
         public uint GetUInt(string key, uint defaultValue = 0)
         {
             object value;
