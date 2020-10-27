@@ -39,7 +39,7 @@ namespace Basement.BLFramework.Essential.Rewards
 
         public virtual IRewardResult Award(IRewardResult rewardResult)
         {
-            return null;
+            return rewardResult;
         }
 
         public virtual IRewardResult Calculate()
