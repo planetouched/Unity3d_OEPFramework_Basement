@@ -7,7 +7,7 @@ namespace Basement.OEPFramework.UnityEngine.Futures
     {
         private readonly float _sec;
         private Timer _waitTimer;
-        private int _engineTimerLoop;
+        private readonly int _engineTimerLoop;
         
         public WaitFuture(float sec, int engineTimerLoop = -1)
         {
