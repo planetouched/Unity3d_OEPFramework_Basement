@@ -7,15 +7,17 @@ namespace Basement.OEPFramework.UnityEngine.Futures
     {
         private readonly float _sec;
         private Timer _waitTimer;
+        private int _engineTimerLoop;
         
-        public WaitFuture(float sec)
+        public WaitFuture(float sec, int engineTimerLoop = -1)
         {
             _sec = sec;
+            _engineTimerLoop = engineTimerLoop;
         }
 
         protected override void OnRun()
         {
-            _waitTimer = Timer.Create(_sec, Complete, null, true);
+            _waitTimer = Timer.Create(_sec, Complete, null, true, _engineTimerLoop);
         }
 
         protected override void OnComplete()
