@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 
 namespace Basement.OEPFramework.Futures.Util.ThreadSafe
 {
@@ -22,9 +23,17 @@ namespace Basement.OEPFramework.Futures.Util.ThreadSafe
 
         private void InnerRemoveFuture(IFuture future)
         {
-            if (_futures.TryRemove(future, out _))
+            var spinWait = new SpinWait();
+
+            for (;;)
             {
-                future.RemoveListener(InnerRemoveFuture);
+                if (_futures.TryRemove(future, out _))
+                {
+                    future.RemoveListener(InnerRemoveFuture);
+                    break;
+                }
+
+                spinWait.SpinOnce();
             }
         }
 
