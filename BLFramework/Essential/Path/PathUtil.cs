@@ -101,7 +101,7 @@ namespace Basement.BLFramework.Essential.Path
         public static RawNode GetRawNode(IContext context, string path, IRandom random)
         {
             var parts = GetParts(path);
-            RawNode current = context.repositoryNode;
+            RawNode current = context.repositories;
 
             for (int i = 0; i < parts.Count; i++)
             {

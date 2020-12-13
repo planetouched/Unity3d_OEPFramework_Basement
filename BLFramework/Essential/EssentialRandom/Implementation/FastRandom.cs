@@ -19,9 +19,9 @@
             return RealUnitInt * (0x7FFFFFFF & (W ^ (W >> 19) ^ t ^ (t >> 8)));
         }
 
-        public int NextInt(ref int seed, int exlusiveMax, bool incSeed)
+        public int NextInt(ref int seed, int exclusiveMax, bool incSeed)
         {
-            return (int)(NextDouble(ref seed, incSeed) * exlusiveMax);
+            return (int)(NextDouble(ref seed, incSeed) * exclusiveMax);
         }
 
         public int Range(int inclusiveMin, int exclusiveMax, ref int seed, bool incSeed)
