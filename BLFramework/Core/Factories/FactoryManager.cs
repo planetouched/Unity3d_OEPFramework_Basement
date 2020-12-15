@@ -27,6 +27,12 @@ namespace Basement.BLFramework.Core.Factories
             return _factories[factoryType];
         }
         
+        public static void RemoveFactories()
+        {
+            _defaultFactory = null;
+            _factories.Clear();
+        }
+        
         #region common
         public static object Build(Type type, string key)
         {
@@ -137,5 +143,7 @@ namespace Basement.BLFramework.Core.Factories
         }
 
         #endregion
+
+      
     }
 }
