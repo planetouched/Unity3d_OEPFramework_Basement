@@ -143,7 +143,5 @@ namespace Basement.BLFramework.Core.Factories
         }
 
         #endregion
-
-      
     }
 }
