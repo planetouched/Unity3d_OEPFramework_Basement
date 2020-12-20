@@ -29,6 +29,7 @@ namespace Basement.BLFramework.Core.Model
             {
                 _lastId = Math.Max(_lastId, int.Parse(pair.Key));
                 var model = Factory(pair.Key, collectionNode.GetNode(pair.Key));
+                model.key = pair.Key;
                 base.AddChild(model);
                 model.Initialization();
             }
@@ -36,7 +37,9 @@ namespace Basement.BLFramework.Core.Model
 
         public TModel AddChild(RawNode modelNode)
         {
-            var model = Factory(IncrementAndGetLastCollectionId(), modelNode);
+            var id = IncrementAndGetLastCollectionId();
+            var model = Factory(id, modelNode);
+            model.key = id;
             base.AddChild(model);
             model.Initialization();
             return model;
@@ -44,7 +47,7 @@ namespace Basement.BLFramework.Core.Model
 
         public IEnumerable<KeyValuePair<string, TModel>> GetCollection()
         {
-            foreach (var pair in this)
+            foreach (var pair in this)    
             {
                 yield return new KeyValuePair<string, TModel>(pair.Key, (TModel)pair.Value);
             }
