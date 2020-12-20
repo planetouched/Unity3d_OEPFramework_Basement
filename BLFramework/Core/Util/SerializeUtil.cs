@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Basement.BLFramework.Core.Model;
 using fastJSON;
 
@@ -69,6 +70,11 @@ namespace Basement.BLFramework.Core.Util
         public static string Json2String(object dict)
         {
             return JSON.Instance.ToJSON(dict);
+        }
+
+        public static void SaveToFile(string file, object dict)
+        {
+            File.WriteAllText(file, Json2String(dict));
         }
     }
 }
