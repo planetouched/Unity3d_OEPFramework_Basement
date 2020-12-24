@@ -69,6 +69,11 @@ namespace Basement.BLFramework.Core.Model
                 dict.Add(pair.Key, pair.Value.Serialize());
             }
 
+            if (dict.Count == 0)
+            {
+                return null;
+            }
+
             return SerializeUtil.Dict().SetArgs("collection", dict);
         }
     }
