@@ -25,7 +25,7 @@ namespace Basement.BLFramework.Core.Reference.Description
 
             if (!node.CheckKey(collectionKey))
             {
-                throw new Exception("Key not found");
+                throw new Exception($"Key({collectionKey}) not found");
             }
             
             value = Factory(node.GetNode(collectionKey));
