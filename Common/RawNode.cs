@@ -47,6 +47,15 @@ namespace Basement.Common
                 return Convert.ToInt16(value);
             return defaultValue;
         }
+        
+        public DateTime GetDateTime(string key)
+        {
+            object value;
+            if (_rawData != null && dictionary.TryGetValue(key, out value))
+                return Convert.ToDateTime(value);
+            return DateTime.Now;
+        }
+        
         public long[] GetLongArray(string key, long[] defaultValue = null)
         {
             defaultValue = defaultValue ?? new long[0];
