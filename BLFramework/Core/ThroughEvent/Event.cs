@@ -65,9 +65,8 @@ namespace Basement.BLFramework.Core.ThroughEvent
             var toCall = new List<KeyValuePair<int, EventHandler>>();
             foreach (var model in models)
             {
-                IList<KeyValuePair<int, EventHandler>> tmp;
-                if (model.GetEvent()._handlers.TryGetValue(category, out tmp))
-                    toCall.AddRange(model.GetEvent()._handlers[category]);
+                if (model.GetEvent()._handlers.TryGetValue(category, out var list))
+                    toCall.AddRange(list);
             }
 
             if (toCall.Count == 0) return;
