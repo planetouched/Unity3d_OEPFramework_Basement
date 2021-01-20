@@ -9,7 +9,7 @@ namespace Basement.OEPFramework.Futures.Util
         private IFuture _current;
         public int futuresCount => _queueFutures.Count;
         public event Action<IFuture> onFutureComplete;
-
+        public event Action onAllFutureComplete;
         public void AddFuture(IFuture future)
         {
             if (future.isDone || future.isCancelled || future.wasRun)
@@ -34,7 +34,10 @@ namespace Basement.OEPFramework.Futures.Util
             {
                 _current = _queueFutures.Peek();
             }
-
+            else
+            {
+                onAllFutureComplete?.Invoke();
+            }
             onFutureComplete?.Invoke(f);
             _current?.Run();
         }
@@ -53,8 +56,6 @@ namespace Basement.OEPFramework.Futures.Util
             }
             
             _queueFutures.Clear();
-            
-            onFutureComplete = null;
         }
     }
 }
