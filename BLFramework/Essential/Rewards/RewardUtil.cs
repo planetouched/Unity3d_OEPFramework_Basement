@@ -46,5 +46,42 @@ namespace Basement.BLFramework.Essential.Rewards
 
             return rewards.ToArray();
         }
+
+        public static IList<T> Filter<T>(IRewardResult reward, List<T> rewards = null) where T : IRewardResult
+        {
+            if (rewards == null)
+            {
+                rewards = new List<T>();
+            }
+
+            if (reward is WrappedRewardResult wr)
+            {
+                if (reward is T targetReward)
+                {
+                    rewards.Add(targetReward);
+                }
+                Filter(wr.rewardResult, rewards);
+            }
+            else
+            {
+                if (reward is CompositeRewardResult cr)
+                {
+                    if (reward is T targetReward)
+                    {
+                        rewards.Add(targetReward);
+                    }
+                    foreach (var r in cr.results)
+                    {
+                        Filter(r, rewards);
+                    }
+                }
+                else if (reward is T targetReward)
+                {
+                    rewards.Add(targetReward);
+                }
+            }
+
+            return rewards;
+        }
     }
 }
