@@ -10,11 +10,14 @@ namespace Basement.OEPFramework.Futures.Coroutine
         protected void Next(IFuture obj)
         {
             if (isCancelled) return;
-
-            if (enumerator.MoveNext() && enumerator.Current != null)
+            
+            if (enumerator.MoveNext())
             {
-                currentFuture = (IFuture)enumerator.Current;
-                currentFuture.AddListener(Next);
+                if (enumerator != null && enumerator.Current != null)
+                {
+                    currentFuture = (IFuture)enumerator.Current;
+                    currentFuture.AddListener(Next);
+                }
             }
             else
                 Complete();
