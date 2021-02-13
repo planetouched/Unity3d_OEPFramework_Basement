@@ -67,5 +67,16 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 
             base.Drop();
         }
+
+        public virtual void Reset()
+        {
+            for (int i = 0; i < _actions.Length; i++)
+            {
+                LoopOff(i);
+            }
+
+            callActions = true;
+            callWhenAdded = false;
+        }
     }
 }

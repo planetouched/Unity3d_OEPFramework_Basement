@@ -49,5 +49,12 @@
             Uninitialize();
             base.Drop();
         }
+
+        public override void Reset()
+        {
+            base.Reset();
+            initialized = false;
+            callActions = false;
+        }
     }
 }

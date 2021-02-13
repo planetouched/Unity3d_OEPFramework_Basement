@@ -11,7 +11,7 @@
             CallHandlers();
         }
 
-        public void Complete()
+        public virtual void Complete()
         {
             if (isCancelled || isDone)
                 return;

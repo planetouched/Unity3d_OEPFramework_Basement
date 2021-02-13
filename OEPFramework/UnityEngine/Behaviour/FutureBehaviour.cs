@@ -73,9 +73,18 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
             if (dropped) return;
             _controlLoopTransit.Drop();
 
-            if (onDrop != null)
-                onDrop(this);
+            CallDropHandlers();
+        }
+
+        protected void CallDropHandlers()
+        {
+            onDrop?.Invoke(this);
             onDrop = null;
+        }
+
+        protected void ResetLoopTransit()
+        {
+            _controlLoopTransit.Reset();
         }
     }
 }
