@@ -130,10 +130,22 @@ namespace Basement.OEPFramework.Futures
             return StaticCast<T>(this);
         }
 
-        public IFuture SetAsPromise()
+        public virtual bool Reuse()
+        {
+            lock (_syncRoot)
+            {
+                if (!isDone && !isCancelled) return false;
+            
+                isCancelled = false;
+                isDone = false;
+                wasRun = false;
+                return true;
+            }
+        }
+
+        protected void SetAsPromise()
         {
             _promise = true;
-            return this;
         }
     }
 }

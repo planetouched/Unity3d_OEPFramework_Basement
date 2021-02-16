@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace Basement.OEPFramework.Futures.Coroutine
 {
@@ -13,7 +14,7 @@ namespace Basement.OEPFramework.Futures.Coroutine
             
             if (enumerator.MoveNext())
             {
-                if (enumerator != null && enumerator.Current != null)
+                if (enumerator?.Current != null)
                 {
                     currentFuture = (IFuture)enumerator.Current;
                     currentFuture.AddListener(Next);
@@ -36,6 +37,11 @@ namespace Basement.OEPFramework.Futures.Coroutine
 
             currentFuture = null;
             enumerator = null;
+        }
+
+        public override bool Reuse()
+        {
+            throw new NotSupportedException();
         }
     }
 }

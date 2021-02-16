@@ -14,6 +14,6 @@ namespace Basement.OEPFramework.Futures
         void Cancel();
         IFuture Run();
         T Cast<T>() where T : IFuture;
-        IFuture SetAsPromise();
+        bool Reuse();
     }
 }

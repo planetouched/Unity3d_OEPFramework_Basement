@@ -49,5 +49,18 @@
             Uninitialize();
             base.Drop();
         }
+        
+        public override bool Reuse()
+        {
+            if (!dropped) return false;
+            
+            if (base.Reuse())
+            {
+                callActions = false;
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace Basement.OEPFramework.Futures.Util
         public int futuresCount => _queueFutures.Count;
         public event Action<IFuture> onFutureComplete;
         public event Action onAllFutureComplete;
+        
         public void AddFuture(IFuture future)
         {
             if (future.isDone || future.isCancelled || future.wasRun)

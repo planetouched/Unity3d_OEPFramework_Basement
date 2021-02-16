@@ -17,7 +17,7 @@ namespace Basement.OEPFramework.Futures.Util
             Init();
         }
 
-        void CompleteFuture(IFuture future)
+        private void CompleteFuture(IFuture future)
         {
             IFuture nextFuture = null;
             _compositeFutures.RemoveAt(0);
@@ -30,17 +30,16 @@ namespace Basement.OEPFramework.Futures.Util
                 nextFuture.Run();
         }
 
-        void Complete()
+        private void Complete()
         {
             _current = null;
             isRun = false;
             Init();
 
-            if (onComplete != null)
-                onComplete(isCancelled);
+            onComplete?.Invoke(isCancelled);
         }
         
-        void Init()
+        private void Init()
         {
             _compositeFutures.Add(new CompositeFuture());
             _current = _compositeFutures[0];

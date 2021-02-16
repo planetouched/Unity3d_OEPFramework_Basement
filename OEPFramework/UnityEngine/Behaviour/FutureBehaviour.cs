@@ -72,10 +72,20 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
         {
             if (dropped) return;
             _controlLoopTransit.Drop();
+        }
 
-            if (onDrop != null)
-                onDrop(this);
-            onDrop = null;
+        public override bool Reuse()
+        {
+            if (!dropped) return false;
+
+            if (_controlLoopTransit.Reuse() && base.Reuse())
+            {
+                _controlLoopTransit.onDrop += onDrop;
+                AddListener(f => { Drop(); });
+                return true;
+            }
+
+            return false;
         }
     }
 }

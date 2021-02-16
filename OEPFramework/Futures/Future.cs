@@ -31,5 +31,15 @@
 
         protected abstract void OnRun();
         protected abstract void OnComplete();
+        
+        public override bool Reuse()
+        {
+            if (!isDone && !isCancelled) return false;
+            
+            isCancelled = false;
+            isDone = false;
+            wasRun = false;
+            return true;
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace Basement.OEPFramework.UnityEngine._Base
         bool dropped { get; }
         event Action<IDroppableItem> onDrop;
         void Drop();
+        bool Reuse();
     }
 }
