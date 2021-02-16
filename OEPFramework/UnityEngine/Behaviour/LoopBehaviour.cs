@@ -67,5 +67,18 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 
             base.Drop();
         }
+
+        public override bool Reuse()
+        {
+            if (!dropped) return false;
+            
+            if (base.Reuse())
+            {
+                callActions = true;
+                return true;
+            }
+
+            return false;
+        }
     }
 }

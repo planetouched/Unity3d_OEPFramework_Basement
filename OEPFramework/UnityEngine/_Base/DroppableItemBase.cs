@@ -14,7 +14,7 @@ namespace Basement.OEPFramework.UnityEngine._Base
         public static int globalHashCode;
 
         private readonly int _hashCode;
-        public bool dropped { get; protected set; }
+        public bool dropped { get; private set; }
         public event Action<IDroppableItem> onDrop;
 
         protected DroppableItemBase()
@@ -34,6 +34,14 @@ namespace Basement.OEPFramework.UnityEngine._Base
 
             onDrop?.Invoke(this);
             onDrop = null;
+        }
+
+        public virtual bool Reuse()
+        {
+            if (!dropped) return false;
+            
+            dropped = false;
+            return true;
         }
     }
 }

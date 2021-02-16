@@ -89,11 +89,11 @@ namespace Basement.OEPFramework.Futures
             return StaticCast<T>(this);
         }
 
-        public IFuture SetAsPromise()
+        public abstract bool Reuse();
+
+        protected void SetAsPromise()
         {
             promise = true;
-            return this;
         }
-
     }
 }

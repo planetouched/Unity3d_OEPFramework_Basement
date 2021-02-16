@@ -74,7 +74,17 @@ namespace Basement.OEPFramework.Futures.Util
             
             return this;
         }
-        
+
+        public override bool Reuse()
+        {
+            if (!isDone && !isCancelled) return false;
+            
+            isCancelled = false;
+            isDone = false;
+            wasRun = false;
+            return true;
+        }
+
         public override void Cancel()
         {
             if (promise || isCancelled || isDone)
