@@ -18,12 +18,13 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
         protected FutureBehaviour()
         {
             _hashCode = DroppableItemBase.globalHashCode++;
-            _controlLoopTransit = new ControlLoopTransit();
-            _controlLoopTransit.onDrop += onDrop;
-            _controlLoopTransit.onPlay = OnPlay;
-            _controlLoopTransit.onInitialize = OnInitialize;
-            _controlLoopTransit.onUninitialize = OnUninitialize;
-            _controlLoopTransit.onPause = OnPause;
+            _controlLoopTransit = new ControlLoopTransit
+            {
+                onPlay = OnPlay, 
+                onInitialize = OnInitialize, 
+                onUninitialize = OnUninitialize, 
+                onPause = OnPause
+            };
 
             AddListener(f => { Drop(); });
         }
@@ -72,6 +73,9 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
         {
             if (dropped) return;
             _controlLoopTransit.Drop();
+            
+            onDrop?.Invoke(this);
+            onDrop = null;
         }
 
         public override bool Reuse()
@@ -80,7 +84,6 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 
             if (_controlLoopTransit.Reuse() && base.Reuse())
             {
-                _controlLoopTransit.onDrop += onDrop;
                 AddListener(f => { Drop(); });
                 return true;
             }
