@@ -26,7 +26,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
                 onPause = OnPause
             };
 
-            AddListener(f => { Drop(); });
+            AddListenerOnFinalize(f => { Drop(); });
         }
 
         protected virtual void OnUninitialize() { }
@@ -84,7 +84,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 
             if (_controlLoopTransit.Reuse() && base.Reuse())
             {
-                AddListener(f => { Drop(); });
+                AddListenerOnFinalize(f => { Drop(); });
                 return true;
             }
 

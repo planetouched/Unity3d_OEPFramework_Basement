@@ -10,6 +10,7 @@ namespace Basement.OEPFramework.Futures
         public bool wasRun { get; private set; }
 
         private event Action<IFuture> onComplete;
+        private event Action<IFuture> onFinalize;
         private event Action<IFuture> onRun;
         private volatile bool _promise;
 
@@ -28,6 +29,12 @@ namespace Basement.OEPFramework.Futures
         {
             onComplete?.Invoke(this);
             onComplete = null;
+        }
+        
+        protected void CallFinalizeHandlers()
+        {
+            onFinalize?.Invoke(this);
+            onFinalize = null;
         }
 
         public IFuture AddListenerOnRun(Action<IFuture> method)
@@ -79,6 +86,29 @@ namespace Basement.OEPFramework.Futures
             lock (_syncRoot)
                 onComplete -= method;
         }
+        
+        public IFuture AddListenerOnFinalize(Action<IFuture> method)
+        {
+            bool call = false;
+            lock (_syncRoot)
+            {
+                if (!isDone && !isCancelled)
+                    onFinalize += method;
+                else
+                    call = true;
+            }
+
+            if (call)
+                method(this);
+
+            return this;
+        }
+
+        public void RemoveListenerOnFinalize(Action<IFuture> method)
+        {
+            lock (_syncRoot)
+                onFinalize -= method;
+        }
 
         public void Cancel()
         {
@@ -90,6 +120,7 @@ namespace Basement.OEPFramework.Futures
 
             OnComplete();
             CallHandlers();
+            CallFinalizeHandlers();
         }
 
         public void Complete()
@@ -102,6 +133,7 @@ namespace Basement.OEPFramework.Futures
 
             OnComplete();
             CallHandlers();
+            CallFinalizeHandlers();
         }
 
         public IFuture Run()

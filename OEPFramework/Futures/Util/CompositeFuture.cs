@@ -54,6 +54,7 @@ namespace Basement.OEPFramework.Futures.Util
             }
 
             CallHandlers();
+            CallFinalizeHandlers();
         }
 
         public void AddFuture(IFuture future)
@@ -75,6 +76,7 @@ namespace Basement.OEPFramework.Futures.Util
             wasRun = false;
 
             CallHandlers();
+            CallFinalizeHandlers();
         }
 
         public override IFuture Run()
@@ -90,6 +92,7 @@ namespace Basement.OEPFramework.Futures.Util
             {
                 wasRun = false;
                 CallHandlers();
+                CallFinalizeHandlers();
             }
             else
             {
