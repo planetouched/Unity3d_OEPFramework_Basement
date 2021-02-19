@@ -9,6 +9,11 @@ namespace Basement.OEPFramework.UnityEngine.Futures
         private Timer _waitTimer;
         private int _engineTimerLoop;
 
+        public WaitFuture()
+        {
+            //no op
+        }
+        
         public WaitFuture(float sec, int engineTimerLoop = -1)
         {
             Initialize(sec, engineTimerLoop);
