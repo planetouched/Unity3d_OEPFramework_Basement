@@ -9,6 +9,7 @@
             isCancelled = true;
             OnComplete();
             CallHandlers();
+            CallFinalizeHandlers();
         }
 
         public void Complete()
@@ -18,6 +19,7 @@
             isDone = true;
             OnComplete();
             CallHandlers();
+            CallFinalizeHandlers();
         }
 
         public override IFuture Run()

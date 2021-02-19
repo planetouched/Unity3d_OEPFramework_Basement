@@ -5,14 +5,20 @@ namespace Basement.OEPFramework.UnityEngine.Futures
 {
     public class WaitFuture : Future, IPlayable
     {
-        private readonly float _sec;
+        private float _sec;
         private Timer _waitTimer;
-        private readonly int _engineTimerLoop;
-        
+        private int _engineTimerLoop;
+
         public WaitFuture(float sec, int engineTimerLoop = -1)
+        {
+            Initialize(sec, engineTimerLoop);
+        }
+
+        public IFuture Initialize(float sec, int engineTimerLoop = -1)
         {
             _sec = sec;
             _engineTimerLoop = engineTimerLoop;
+            return this;
         }
 
         protected override void OnRun()
@@ -22,20 +28,18 @@ namespace Basement.OEPFramework.UnityEngine.Futures
 
         protected override void OnComplete()
         {
-            if (_waitTimer != null)
-                _waitTimer.Drop();
+            _waitTimer?.Drop();
+            _waitTimer = null;
         }
 
         public void Pause()
         {
-            if (_waitTimer != null)
-                _waitTimer.Pause();
+            _waitTimer?.Pause();
         }
 
         public void Play()
         {
-            if (_waitTimer != null)
-                _waitTimer.Resume();
+            _waitTimer?.Resume();
         }
     }
 }
