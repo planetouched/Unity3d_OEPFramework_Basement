@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 #if REFVIEW
 using Basement.Common.Util;
 #endif
@@ -12,9 +11,6 @@ namespace Basement.OEPFramework.Futures
 #endif
         IFuture
     {
-        private static int _globalHashCode;
-        private readonly int _hashCode;
-
         public bool isCancelled { get; protected set; }
         public bool isDone { get; protected set; }
         public bool wasRun { get; protected set; }
@@ -23,16 +19,6 @@ namespace Basement.OEPFramework.Futures
         private event Action<IFuture> onFinalize;
         private event Action<IFuture> onRun;
         protected bool promise;
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
-
-        protected FutureBase()
-        {
-            _hashCode = _globalHashCode++;
-        }
 
         protected void CallRunHandlers()
         {

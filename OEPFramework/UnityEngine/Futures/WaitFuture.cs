@@ -9,27 +9,16 @@ namespace Basement.OEPFramework.UnityEngine.Futures
         private Timer _waitTimer;
         private int _engineTimerLoop;
 
-        public WaitFuture()
-        {
-            //no op   
-        }
-        
         public WaitFuture(float sec, int engineTimerLoop = -1)
         {
             Initialize(sec, engineTimerLoop);
         }
 
-        public WaitFuture Initialize(float sec, int engineTimerLoop = -1)
+        public IFuture Initialize(float sec, int engineTimerLoop = -1)
         {
             _sec = sec;
             _engineTimerLoop = engineTimerLoop;
             return this;
-        }
-
-        public override void Cancel()
-        {
-            _waitTimer = null;
-            base.Cancel();
         }
 
         protected override void OnRun()
@@ -40,6 +29,7 @@ namespace Basement.OEPFramework.UnityEngine.Futures
         protected override void OnComplete()
         {
             _waitTimer?.Drop();
+            _waitTimer = null;
         }
 
         public void Pause()

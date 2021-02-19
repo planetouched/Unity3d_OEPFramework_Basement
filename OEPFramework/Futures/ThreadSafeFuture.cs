@@ -30,8 +30,8 @@ namespace Basement.OEPFramework.Futures
             onComplete?.Invoke(this);
             onComplete = null;
         }
-        
-        protected void CallFinalizeHandlers()
+
+        private void CallFinalizeHandlers()
         {
             onFinalize?.Invoke(this);
             onFinalize = null;

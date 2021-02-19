@@ -11,21 +11,8 @@ namespace Basement.OEPFramework.UnityEngine._Base
 #endif
         IDroppableItem
     {
-        public static int globalHashCode;
-
-        private readonly int _hashCode;
         public bool dropped { get; private set; }
         public event Action<IDroppableItem> onDrop;
-
-        protected DroppableItemBase()
-        {
-            _hashCode = globalHashCode++;
-        }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
 
         public virtual void Drop()
         {

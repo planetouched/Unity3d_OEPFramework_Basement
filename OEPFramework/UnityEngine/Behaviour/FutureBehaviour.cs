@@ -7,8 +7,6 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 {
     public abstract class FutureBehaviour : Future, IControllable, IDroppableItem, ILoopable
     {
-        private readonly int _hashCode;
-
         private readonly ControlLoopTransit _controlLoopTransit;
         public event Action<IDroppableItem> onDrop;
 
@@ -17,7 +15,6 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 
         protected FutureBehaviour()
         {
-            _hashCode = DroppableItemBase.globalHashCode++;
             _controlLoopTransit = new ControlLoopTransit
             {
                 onPlay = OnPlay, 
@@ -33,11 +30,6 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
         protected virtual void OnInitialize() { }
         protected virtual void OnPause() { }
         protected virtual void OnPlay() { }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
 
         public void LoopOn(int loopType, Action action, bool callNow = false)
         {
