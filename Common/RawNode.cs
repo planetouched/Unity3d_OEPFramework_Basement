@@ -56,6 +56,24 @@ namespace Basement.Common
             return DateTime.Now;
         }
         
+        public DateTime[] GetDateTimeArray(string key, DateTime[] defaultValue = null)
+        {
+            defaultValue = defaultValue ?? new DateTime[0];
+            object value = null;
+            if (_rawData != null)
+                dictionary.TryGetValue(key, out value);
+            return value == null ? defaultValue : new RawNode(value).GetDateTimeArray();
+        }
+        
+        public DateTime[] GetDateTimeArray()
+        {
+            if (_rawData == null) return new DateTime[0];
+            var ret = new List<DateTime>();
+            foreach (var e in (List<object>)_rawData)
+                ret.Add(Convert.ToDateTime(e));
+            return ret.ToArray();
+        }
+        
         public long[] GetLongArray(string key, long[] defaultValue = null)
         {
             defaultValue = defaultValue ?? new long[0];
