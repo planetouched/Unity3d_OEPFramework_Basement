@@ -1,4 +1,7 @@
 using System;
+#if UNITY_5_3_OR_NEWER
+using UnityEngine;
+#endif
 
 namespace Basement.OEPFramework.Futures
 {
@@ -13,7 +16,18 @@ namespace Basement.OEPFramework.Futures
 
         protected override void OnRun()
         {
-            result = _func();
+            try
+            {
+                result = _func();
+            }
+            catch (Exception e)
+            {
+#if UNITY_5_3_OR_NEWER
+                Debug.LogException(e);
+#endif
+                throw;
+            }
+            
             Complete();
         }
 
@@ -32,7 +46,18 @@ namespace Basement.OEPFramework.Futures
 
         protected override void OnRun()
         {
-            _action();
+            try
+            {
+                _action();
+            }
+            catch (Exception e)
+            {
+#if UNITY_5_3_OR_NEWER                
+                Debug.LogException(e);
+#endif
+                throw;
+            }
+            
             Complete();
         }
 
