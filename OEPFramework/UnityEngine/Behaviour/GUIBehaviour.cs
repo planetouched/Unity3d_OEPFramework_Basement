@@ -59,7 +59,7 @@ namespace Basement.OEPFramework.UnityEngine.Behaviour
 
             if (!_external)
             {
-                gameObject = Object.Instantiate(_template ?? Resources.Load<GameObject>(prefabPath));
+                gameObject = Object.Instantiate(_template ? _template : Resources.Load<GameObject>(prefabPath));
                 _template = null;
                 rectTransform = gameObject.GetComponent<RectTransform>();
 

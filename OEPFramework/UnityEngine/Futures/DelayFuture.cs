@@ -5,17 +5,29 @@ namespace Basement.OEPFramework.UnityEngine.Futures
 {
     public class DelayFuture : Future, IPlayable
     {
-        private readonly float _delay;
-        private readonly IFuture _delayFuture;
+        private float _delay;
+        private IFuture _delayedFuture;
         private Timer _timer;
-        public DelayFuture(float delay, IFuture delayFuture)
+
+        public DelayFuture()
+        {
+        }
+        
+        public DelayFuture(float delay, IFuture delayedFuture)
+        {
+            Initialize(delay, delayedFuture);
+        }
+
+        public IFuture Initialize(float delay, IFuture delayedFuture)
         {
             _delay = delay;
-            _delayFuture = delayFuture;
+            _delayedFuture = delayedFuture;
+            return this;
         }
+        
         protected override void OnRun()
         {
-            _delayFuture.AddListener(f =>
+            _delayedFuture.AddListener(f =>
             {
                 if (f.isDone)
                     Complete();
@@ -23,7 +35,7 @@ namespace Basement.OEPFramework.UnityEngine.Futures
 
             _timer = Timer.Create(_delay, () =>
             {
-                _delayFuture.Run();
+                _delayedFuture.Run();
             }, null, true);
         }
 
@@ -31,23 +43,24 @@ namespace Basement.OEPFramework.UnityEngine.Futures
         {
             if (isCancelled)
             {
-                _delayFuture.Cancel();
+                _delayedFuture.Cancel();
             }
 
-            if (_timer != null)
-                _timer.Drop();
+            _timer?.Drop();
+
+            _timer = null;
+            _delayedFuture = null;
+            _delay = 0;
         }
 
         public void Pause()
         {
-            if (_timer != null)
-                _timer.Pause();
+            _timer?.Pause();
         }
 
         public void Play()
         {
-            if (_timer != null)
-                _timer.Resume();
+            _timer?.Resume();
         }
     }
 }
