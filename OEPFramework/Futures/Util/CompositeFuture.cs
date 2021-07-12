@@ -62,7 +62,6 @@ namespace Basement.OEPFramework.Futures.Util
             if (wasRun || isDone || isCancelled || future.isDone || future.isCancelled) return;
 
             _futures.Add(future);
-            future.AddListener(OnFutureComplete);
         }
 
         private void OnFutureComplete(IFuture future)
@@ -99,6 +98,7 @@ namespace Basement.OEPFramework.Futures.Util
                 foreach (var future in GetFuturesCopyList())
                 {
                     future.Run();
+                    future.AddListener(OnFutureComplete);
                 }
             }
             return this;

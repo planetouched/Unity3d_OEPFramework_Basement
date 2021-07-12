@@ -35,7 +35,6 @@ namespace Basement.OEPFramework.Futures.Util
                 return;
             
             _futures.Add(future);
-            future.AddListener(OnFutureComplete);
         }
 
         private void OnFutureComplete(IFuture future)
@@ -72,6 +71,8 @@ namespace Basement.OEPFramework.Futures.Util
             else
             {
                 _futures[0].Run();
+                _futures[0].AddListener(OnFutureComplete);
+
             }
             
             return this;
