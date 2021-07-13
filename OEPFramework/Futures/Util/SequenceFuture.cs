@@ -4,6 +4,8 @@ namespace Basement.OEPFramework.Futures.Util
 {
     public class SequenceFuture : FutureBase, IFutureCollection
     {
+        public int futuresCount => _futures.Count;
+        
         private readonly List<IFuture> _futures = new List<IFuture>();
         
         public List<IFuture> GetFuturesCopy()
