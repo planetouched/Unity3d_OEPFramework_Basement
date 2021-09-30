@@ -26,8 +26,8 @@
         {
             if (wasRun || isCancelled || isDone) return this;
             wasRun = true;
-            OnRun();
             CallRunHandlers();
+            OnRun();
             return this;
         }
 
