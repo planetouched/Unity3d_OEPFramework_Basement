@@ -21,7 +21,7 @@ namespace Basement.OEPFramework.Futures
         private event Action<IFuture> onRun;
         protected bool promise;
 
-        private List<(FutureCompletionState state, Action<IFuture> action)> _onComplete; 
+        private List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(); 
 
         protected void CallRunHandlers()
         {
@@ -40,7 +40,7 @@ namespace Basement.OEPFramework.Futures
                 }
             }
             
-            _onComplete = null;
+            _onComplete.Clear();
         }
         
         protected void CallFinalizeHandlers()
@@ -68,7 +68,6 @@ namespace Basement.OEPFramework.Futures
         {
             if (!isDone && !isCancelled)
             {
-                _onComplete ??= new List<(FutureCompletionState, Action<IFuture>)>();
                 _onComplete.Add((state, method));
             }
             else

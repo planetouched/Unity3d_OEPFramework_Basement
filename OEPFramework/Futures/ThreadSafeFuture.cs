@@ -14,7 +14,7 @@ namespace Basement.OEPFramework.Futures
         private event Action<IFuture> onRun;
         private volatile bool _promise;
         
-        private List<(FutureCompletionState state, Action<IFuture> action)> _onComplete; 
+        private List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(); 
 
         protected ThreadSafeFuture ()
         {
@@ -39,7 +39,7 @@ namespace Basement.OEPFramework.Futures
             }
 
             // it is ok. because isDone or isCancelled have been already set
-            _onComplete = null;
+            _onComplete.Clear();
         }
 
         private void CallFinalizeHandlers()
@@ -82,7 +82,6 @@ namespace Basement.OEPFramework.Futures
             {
                 if (!isDone && !isCancelled)
                 {
-                    _onComplete ??= new List<(FutureCompletionState, Action<IFuture>)>();
                     _onComplete.Add((state, method));
                 }
                 else
