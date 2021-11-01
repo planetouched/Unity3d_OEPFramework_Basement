@@ -21,7 +21,7 @@ namespace Basement.OEPFramework.Futures
         private event Action<IFuture> onRun;
         protected bool promise;
 
-        private readonly List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(); 
+        private readonly List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(2); 
 
         private bool CallCheck(FutureCompletionState state)
         {
