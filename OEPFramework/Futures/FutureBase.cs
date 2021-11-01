@@ -21,7 +21,14 @@ namespace Basement.OEPFramework.Futures
         private event Action<IFuture> onRun;
         protected bool promise;
 
-        private List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(); 
+        private readonly List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(); 
+
+        private bool CallCheck(FutureCompletionState state)
+        {
+            return state == FutureCompletionState.Both ||
+                   state == FutureCompletionState.Done && isDone ||
+                   state == FutureCompletionState.Cancelled && isCancelled;
+        }
 
         protected void CallRunHandlers()
         {
@@ -34,7 +41,7 @@ namespace Basement.OEPFramework.Futures
             for (int i = 0; i < _onComplete.Count; i++)
             {
                 var state = _onComplete[i].state;
-                if (state == FutureCompletionState.Both || state == FutureCompletionState.Done && isDone || state == FutureCompletionState.Cancelled && isCancelled)
+                if (CallCheck(state))
                 {
                     _onComplete[i].action(this);
                 }
@@ -72,7 +79,7 @@ namespace Basement.OEPFramework.Futures
             }
             else
             {
-                if (state == FutureCompletionState.Both || state == FutureCompletionState.Done && isDone || state == FutureCompletionState.Cancelled && isCancelled)
+                if (CallCheck(state))
                 {
                     method(this);
                 }
