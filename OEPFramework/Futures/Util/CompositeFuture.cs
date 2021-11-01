@@ -98,7 +98,7 @@ namespace Basement.OEPFramework.Futures.Util
                 foreach (var future in GetFuturesCopyList())
                 {
                     future.Run();
-                    future.AddListener(OnFutureComplete);
+                    future.AddListener(FutureCompletionState.Both, OnFutureComplete);
                 }
             }
             return this;

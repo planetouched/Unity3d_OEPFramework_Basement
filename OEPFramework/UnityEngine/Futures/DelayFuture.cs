@@ -27,10 +27,9 @@ namespace Basement.OEPFramework.UnityEngine.Futures
         
         protected override void OnRun()
         {
-            _delayedFuture.AddListener(f =>
+            _delayedFuture.AddListener(FutureCompletionState.Done, f => 
             {
-                if (f.isDone)
-                    Complete();
+                Complete();
             });
 
             _timer = Timer.Create(_delay, () =>

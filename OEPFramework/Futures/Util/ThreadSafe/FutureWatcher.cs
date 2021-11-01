@@ -17,7 +17,7 @@ namespace Basement.OEPFramework.Futures.Util.ThreadSafe
 
             if (_futures.TryAdd(future, true))
             {
-                future.AddListener(InnerRemoveFuture);
+                future.AddListener(FutureCompletionState.Both, InnerRemoveFuture);
             }
         }
 

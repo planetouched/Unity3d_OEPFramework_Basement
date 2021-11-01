@@ -17,7 +17,7 @@ namespace Basement.OEPFramework.Futures.Util
                 throw new Exception("future already run or completed");
 
             _queueFutures.Enqueue(future);
-            future.AddListener(FutureComplete);
+            future.AddListener(FutureCompletionState.Both, FutureComplete);
             
             if (_queueFutures.Count == 1)
             {

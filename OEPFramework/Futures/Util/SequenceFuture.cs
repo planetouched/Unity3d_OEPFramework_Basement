@@ -47,7 +47,7 @@ namespace Basement.OEPFramework.Futures.Util
             if (_futures.Count > 0)
             {
                 _futures[0].Run();
-                _futures[0].AddListener(OnFutureComplete);
+                _futures[0].AddListener(FutureCompletionState.Both, OnFutureComplete);
                 return;
             }
             
@@ -74,7 +74,7 @@ namespace Basement.OEPFramework.Futures.Util
             else
             {
                 _futures[0].Run();
-                _futures[0].AddListener(OnFutureComplete);
+                _futures[0].AddListener(FutureCompletionState.Both, OnFutureComplete);
 
             }
             
