@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 #if REFVIEW
 using Basement.Common.Util;
 #endif
@@ -15,10 +17,18 @@ namespace Basement.OEPFramework.Futures
         public bool isDone { get; protected set; }
         public bool wasRun { get; protected set; }
 
-        private event Action<IFuture> onComplete;
         private event Action<IFuture> onFinalize;
         private event Action<IFuture> onRun;
         protected bool promise;
+
+        private readonly List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(2); 
+
+        private bool CallCheck(FutureCompletionState state)
+        {
+            return state == FutureCompletionState.Both ||
+                   state == FutureCompletionState.Done && isDone ||
+                   state == FutureCompletionState.Cancelled && isCancelled;
+        }
 
         protected void CallRunHandlers()
         {
@@ -28,8 +38,16 @@ namespace Basement.OEPFramework.Futures
 
         protected void CallHandlers()
         {
-            onComplete?.Invoke(this);
-            onComplete = null;
+            for (int i = 0; i < _onComplete.Count; i++)
+            {
+                var state = _onComplete[i].state;
+                if (CallCheck(state))
+                {
+                    _onComplete[i].action(this);
+                }
+            }
+            
+            _onComplete.Clear();
         }
         
         protected void CallFinalizeHandlers()
@@ -53,12 +71,19 @@ namespace Basement.OEPFramework.Futures
             onRun -= method;
         }
 
-        public IFuture AddListener(Action<IFuture> method)
+        public IFuture AddListener(FutureCompletionState state, Action<IFuture> method)
         {
             if (!isDone && !isCancelled)
-                onComplete += method;
+            {
+                _onComplete.Add((state, method));
+            }
             else
-                method(this);
+            {
+                if (CallCheck(state))
+                {
+                    method(this);
+                }
+            }
 
             return this;
         }
@@ -66,7 +91,14 @@ namespace Basement.OEPFramework.Futures
 
         public void RemoveListener(Action<IFuture> method)
         {
-            onComplete -= method;
+            for (int i = 0; i < _onComplete.Count; i++)
+            {
+                if (_onComplete[i].action == method)
+                {
+                    _onComplete.RemoveAt(i);
+                    break;
+                }
+            }
         }
         
         public IFuture AddListenerOnFinalize(Action<IFuture> method)

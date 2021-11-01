@@ -17,7 +17,7 @@ namespace Basement.OEPFramework.Futures.Coroutine
                 if (enumerator?.Current != null)
                 {
                     currentFuture = (IFuture)enumerator.Current;
-                    currentFuture.AddListener(Next);
+                    currentFuture.AddListener(FutureCompletionState.Both, Next);
                 }
             }
             else

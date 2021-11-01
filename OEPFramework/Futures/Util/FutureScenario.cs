@@ -43,7 +43,7 @@ namespace Basement.OEPFramework.Futures.Util
         {
             _compositeFutures.Add(new CompositeFuture());
             _current = _compositeFutures[0];
-            _current.AddListener(CompleteFuture);
+            _current.AddListener(FutureCompletionState.Both, CompleteFuture);
         }
         
         public void Next()
@@ -52,7 +52,7 @@ namespace Basement.OEPFramework.Futures.Util
             var newFuture = new CompositeFuture();
 
             _compositeFutures.Add(newFuture);
-            newFuture.AddListener(CompleteFuture);
+            newFuture.AddListener(FutureCompletionState.Both, CompleteFuture);
             _current = newFuture;
         }
 
