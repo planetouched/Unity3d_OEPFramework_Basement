@@ -103,9 +103,11 @@ namespace Basement.OEPFramework.UnityEngine.Loop
                 
                 foreach (var behaviour in _toAdd)
                 {
+                    if (behaviour.dropped) continue;
+                    
                     _items.Add(behaviour);
 
-                    if (behaviour.callWhenAdded)
+                    if (behaviour.callWhenAdded && behaviour.callActions)
                     {
                         newLoops.Add(behaviour);
                     }
