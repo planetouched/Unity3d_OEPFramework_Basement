@@ -13,7 +13,7 @@ namespace Basement.OEPFramework.UnityEngine.Futures
 
         protected override void OnRun()
         {
-            Sync.Add(Complete, _loopType);
+            Sync.Add(() => Complete(), _loopType);
         }
 
         protected override void OnComplete()

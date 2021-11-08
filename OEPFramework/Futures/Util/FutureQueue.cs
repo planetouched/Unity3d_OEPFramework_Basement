@@ -13,7 +13,7 @@ namespace Basement.OEPFramework.Futures.Util
         
         public void AddFuture(IFuture future)
         {
-            if (future.isDone || future.isCancelled || future.wasRun)
+            if (future.isDone || future.isCancelled || future.hasRun)
                 throw new Exception("future already run or completed");
 
             _queueFutures.Enqueue(future);

@@ -28,7 +28,7 @@ namespace Basement.OEPFramework.UnityEngine.Futures
 
         protected override void OnRun()
         {
-            _waitTimer = Timer.Create(_sec, Complete, null, true, _engineTimerLoop);
+            _waitTimer = Timer.Create(_sec, () => Complete(), null, true, _engineTimerLoop);
         }
 
         protected override void OnComplete()

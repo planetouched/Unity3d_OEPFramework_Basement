@@ -15,11 +15,12 @@ namespace Basement.OEPFramework.Futures
     {
         public bool isCancelled { get; protected set; }
         public bool isDone { get; protected set; }
-        public bool wasRun { get; protected set; }
+        public bool hasRun { get; protected set; }
+        public bool isExternal { get; protected set; }
+        public bool isPromise { get; protected set; }
 
         private event Action<IFuture> onFinalize;
         private event Action<IFuture> onRun;
-        protected bool promise;
 
         private readonly List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(2); 
 
@@ -58,7 +59,7 @@ namespace Basement.OEPFramework.Futures
 
         public IFuture AddListenerOnRun(Action<IFuture> method)
         {
-            if (!wasRun)
+            if (!hasRun)
                 onRun += method;
             else
                 method(this);
@@ -116,10 +117,12 @@ namespace Basement.OEPFramework.Futures
             onFinalize -= method;
         }
 
+        public abstract void Complete(bool external = false);
         public abstract void Cancel();
         public abstract IFuture Run();
+        public abstract bool Reuse();
 
-        public static T StaticCast<T>(IFuture future)
+        private static T StaticCast<T>(IFuture future)
         {
             return (T)future;
         }
@@ -129,11 +132,9 @@ namespace Basement.OEPFramework.Futures
             return StaticCast<T>(this);
         }
 
-        public abstract bool Reuse();
-
         protected void SetAsPromise()
         {
-            promise = true;
+            isPromise = true;
         }
     }
 }

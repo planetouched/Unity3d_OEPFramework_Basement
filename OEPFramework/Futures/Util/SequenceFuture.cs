@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Basement.OEPFramework.Futures.Util
@@ -33,7 +34,7 @@ namespace Basement.OEPFramework.Futures.Util
 
         public void AddFuture(IFuture future)
         {
-            if (wasRun || isDone || isCancelled || future.isDone || future.isCancelled)
+            if (hasRun || isDone || isCancelled || future.isDone || future.isCancelled)
                 return;
             
             _futures.Add(future);
@@ -52,7 +53,7 @@ namespace Basement.OEPFramework.Futures.Util
             }
             
             isDone = true;
-            wasRun = false;
+            hasRun = false;
 
             CallHandlers();
             CallFinalizeHandlers();
@@ -60,14 +61,14 @@ namespace Basement.OEPFramework.Futures.Util
 
         public override IFuture Run()
         {
-            if (wasRun) return this;
-            wasRun = true;
+            if (hasRun) return this;
+            hasRun = true;
             CallRunHandlers();
             isDone = _futures.Count == 0;
             
             if (isDone)
             {
-                wasRun = false;
+                hasRun = false;
                 CallHandlers();
                 CallFinalizeHandlers();
             }
@@ -87,23 +88,57 @@ namespace Basement.OEPFramework.Futures.Util
             
             isCancelled = false;
             isDone = false;
-            wasRun = false;
+            hasRun = false;
             return true;
         }
 
-        public override void Cancel()
+        public override void Complete(bool external = false)
         {
-            if (promise || isCancelled || isDone)
-                return;
-            isCancelled = true;
-            wasRun = false;
+            if (isPromise || isCancelled || isDone) return;
+
+            isExternal = external;
+            isDone = true;
+            hasRun = false;
 
             var copy = GetFuturesCopy();
             _futures.Clear();
 
             foreach (var future in copy)
             {
-                if (future.isCancelled) continue;
+                if (future.isPromise)
+                {
+                    throw new Exception("future.isPromise == true");
+                }
+                
+                if (future.isCancelled || future.isDone) continue;
+                
+                future.RemoveListener(OnFutureComplete);
+                future.Complete(external);
+            }
+
+            CallHandlers();
+            CallFinalizeHandlers();
+        }
+        
+        public override void Cancel()
+        {
+            if (isPromise || isCancelled || isDone) return;
+            
+            isCancelled = true;
+            hasRun = false;
+
+            var copy = GetFuturesCopy();
+            _futures.Clear();
+
+            foreach (var future in copy)
+            {
+                if (future.isPromise)
+                {
+                    throw new Exception("future.isPromise == true");
+                }
+                
+                if (future.isCancelled || future.isDone) continue;
+                
                 future.RemoveListener(OnFutureComplete);
                 future.Cancel();
             }

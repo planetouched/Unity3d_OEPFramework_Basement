@@ -4,7 +4,7 @@
     {
         public override void Cancel()
         {
-            if (promise || isCancelled || isDone)
+            if (isPromise || isCancelled || isDone)
                 return;
             isCancelled = true;
             OnComplete();
@@ -12,10 +12,12 @@
             CallFinalizeHandlers();
         }
 
-        public void Complete()
+        public override void Complete(bool external = false)
         {
             if (isCancelled || isDone)
                 return;
+
+            isExternal = external;
             isDone = true;
             OnComplete();
             CallHandlers();
@@ -24,8 +26,8 @@
 
         public override IFuture Run()
         {
-            if (wasRun || isCancelled || isDone) return this;
-            wasRun = true;
+            if (hasRun || isCancelled || isDone) return this;
+            hasRun = true;
             CallRunHandlers();
             OnRun();
             return this;
@@ -40,7 +42,7 @@
             
             isCancelled = false;
             isDone = false;
-            wasRun = false;
+            hasRun = false;
             return true;
         }
     }

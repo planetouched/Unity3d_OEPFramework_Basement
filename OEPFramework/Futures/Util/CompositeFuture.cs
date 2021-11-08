@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Basement.OEPFramework.Futures.Util
 {
@@ -32,22 +33,55 @@ namespace Basement.OEPFramework.Futures.Util
 
             isCancelled = false;
             isDone = false;
-            wasRun = false;
+            hasRun = false;
             return true;
         }
-        
-        public override void Cancel()
+
+        public override void Complete(bool external = false)
         {
-            if (promise || isCancelled || isDone) return;
+            if (isPromise || isCancelled || isDone) return;
             
-            isCancelled = true;
-            wasRun = false;
+            isExternal = external;
+            
+            isDone = true;
+            hasRun = false;
             var copy = GetFuturesCopyList();
             _futures.Clear();
 
             foreach (var future in copy)
             {
-                if (future.isCancelled) continue;
+                if (future.isPromise)
+                {
+                    throw new Exception("future.isPromise == true");
+                }
+                
+                if (future.isCancelled || future.isDone) continue;
+                
+                future.RemoveListener(OnFutureComplete);
+                future.Complete(external);
+            }
+
+            CallHandlers();
+            CallFinalizeHandlers();
+        }
+
+        public override void Cancel()
+        {
+            if (isPromise || isCancelled || isDone) return;
+            
+            isCancelled = true;
+            hasRun = false;
+            var copy = GetFuturesCopyList();
+            _futures.Clear();
+
+            foreach (var future in copy)
+            {
+                if (future.isPromise)
+                {
+                    throw new Exception("future.isPromise == true");
+                }
+                
+                if (future.isCancelled || future.isDone) continue;
                 
                 future.RemoveListener(OnFutureComplete);
                 future.Cancel();
@@ -59,7 +93,7 @@ namespace Basement.OEPFramework.Futures.Util
 
         public void AddFuture(IFuture future)
         {
-            if (wasRun || isDone || isCancelled || future.isDone || future.isCancelled) return;
+            if (hasRun || isDone || isCancelled || future.isDone || future.isCancelled) return;
 
             _futures.Add(future);
         }
@@ -72,7 +106,7 @@ namespace Basement.OEPFramework.Futures.Util
             if (_futures.Count > 0) return;
             
             isDone = true;
-            wasRun = false;
+            hasRun = false;
 
             CallHandlers();
             CallFinalizeHandlers();
@@ -80,16 +114,16 @@ namespace Basement.OEPFramework.Futures.Util
 
         public override IFuture Run()
         {
-            if (wasRun) return this;
+            if (hasRun) return this;
             
-            wasRun = true;
+            hasRun = true;
             isDone = _futures.Count == 0;
 
             CallRunHandlers();
 
             if (isDone)
             {
-                wasRun = false;
+                hasRun = false;
                 CallHandlers();
                 CallFinalizeHandlers();
             }

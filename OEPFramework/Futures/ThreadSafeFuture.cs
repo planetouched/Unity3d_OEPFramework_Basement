@@ -8,15 +8,16 @@ namespace Basement.OEPFramework.Futures
         private readonly object _syncRoot;
         public bool isCancelled { get; private set; }
         public bool isDone { get; private set; }
-        public bool wasRun { get; private set; }
+        public bool hasRun { get; private set; }
+        public bool isExternal { get; private set;}
+        public bool isPromise { get; private set; }
 
         private event Action<IFuture> onFinalize;
         private event Action<IFuture> onRun;
-        private volatile bool _promise;
         
         private readonly List<(FutureCompletionState state, Action<IFuture> action)> _onComplete = new List<(FutureCompletionState state, Action<IFuture> action)>(2); 
 
-        protected ThreadSafeFuture ()
+        protected ThreadSafeFuture()
         {
             _syncRoot = new object();
         }
@@ -60,7 +61,7 @@ namespace Basement.OEPFramework.Futures
             bool call = false;
             lock (_syncRoot)
             {
-                if (!wasRun)
+                if (!hasRun)
                     onRun += method;
                 else
                     call = true;
@@ -148,7 +149,7 @@ namespace Basement.OEPFramework.Futures
         {
             lock (_syncRoot)
             {
-                if (_promise || isCancelled || isDone) return;
+                if (isPromise || isCancelled || isDone) return;
                 isCancelled = true;
             }
 
@@ -157,12 +158,13 @@ namespace Basement.OEPFramework.Futures
             CallFinalizeHandlers();
         }
 
-        public void Complete()
+        public void Complete(bool external = false)
         {
             lock (_syncRoot)
             {
                 if (isCancelled || isDone) return;
                 isDone = true;
+                isExternal = external;
             }
 
             OnComplete();
@@ -174,8 +176,8 @@ namespace Basement.OEPFramework.Futures
         {
             lock (_syncRoot)
             {
-                if (wasRun || isCancelled || isDone) return this;
-                wasRun = true;
+                if (hasRun || isCancelled || isDone) return this;
+                hasRun = true;
             }
 
             OnRun();
@@ -204,14 +206,17 @@ namespace Basement.OEPFramework.Futures
             
                 isCancelled = false;
                 isDone = false;
-                wasRun = false;
+                hasRun = false;
                 return true;
             }
         }
 
         protected void SetAsPromise()
         {
-            _promise = true;
+            lock (_syncRoot)
+            {
+                isPromise = true;
+            }
         }
     }
 }
