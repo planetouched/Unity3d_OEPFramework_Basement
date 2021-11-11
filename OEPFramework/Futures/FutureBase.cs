@@ -39,12 +39,14 @@ namespace Basement.OEPFramework.Futures
 
         protected void CallHandlers()
         {
-            for (int i = 0; i < _onComplete.Count; i++)
+            var copy = new List<(FutureCompletionState state, Action<IFuture> action)>(_onComplete);
+            
+            for (int i = 0; i < copy.Count; i++)
             {
-                var state = _onComplete[i].state;
+                var state = copy[i].state;
                 if (CallCheck(state))
                 {
-                    _onComplete[i].action(this);
+                    copy[i].action(this);
                 }
             }
             

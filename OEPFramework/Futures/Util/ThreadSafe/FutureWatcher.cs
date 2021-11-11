@@ -44,6 +44,15 @@ namespace Basement.OEPFramework.Futures.Util.ThreadSafe
                 pair.Key.RemoveListener(InnerRemoveFuture);
                 pair.Key.Cancel();
             }
+        }
+        
+        public void ForceCompleteFutures()
+        {
+            foreach (var pair in _futures)
+            {
+                pair.Key.RemoveListener(InnerRemoveFuture);
+                pair.Key.Complete(true);
+            }
         }    
     }
 }
