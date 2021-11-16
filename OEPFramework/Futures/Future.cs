@@ -26,8 +26,8 @@
 
         public override IFuture Run()
         {
-            if (hasRun || isCancelled || isDone) return this;
-            hasRun = true;
+            if (isRun || isCancelled || isDone) return this;
+            isRun = true;
             CallRunHandlers();
             OnRun();
             return this;
@@ -42,7 +42,7 @@
             
             isCancelled = false;
             isDone = false;
-            hasRun = false;
+            isRun = false;
             return true;
         }
     }

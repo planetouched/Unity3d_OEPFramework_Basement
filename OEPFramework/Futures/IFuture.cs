@@ -6,7 +6,7 @@ namespace Basement.OEPFramework.Futures
     {
         bool isCancelled { get; }
         bool isDone { get; }
-        bool hasRun { get; }
+        bool isRun { get; }
         bool isExternal { get; }
         bool isPromise { get; }
         IFuture AddListenerOnRun(Action<IFuture> method);

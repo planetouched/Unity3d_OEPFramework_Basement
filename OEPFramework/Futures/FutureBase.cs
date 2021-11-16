@@ -15,7 +15,7 @@ namespace Basement.OEPFramework.Futures
     {
         public bool isCancelled { get; protected set; }
         public bool isDone { get; protected set; }
-        public bool hasRun { get; protected set; }
+        public bool isRun { get; protected set; }
         public bool isExternal { get; protected set; }
         public bool isPromise { get; protected set; }
 
@@ -61,7 +61,7 @@ namespace Basement.OEPFramework.Futures
 
         public IFuture AddListenerOnRun(Action<IFuture> method)
         {
-            if (!hasRun)
+            if (!isRun)
                 onRun += method;
             else
                 method(this);

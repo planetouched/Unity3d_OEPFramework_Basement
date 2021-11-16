@@ -34,7 +34,7 @@ namespace Basement.OEPFramework.Futures.Util
 
         public void AddFuture(IFuture future)
         {
-            if (hasRun || isDone || isCancelled || future.isDone || future.isCancelled)
+            if (isRun || isDone || isCancelled || future.isDone || future.isCancelled)
                 return;
             
             _futures.Add(future);
@@ -53,7 +53,7 @@ namespace Basement.OEPFramework.Futures.Util
             }
             
             isDone = true;
-            hasRun = false;
+            isRun = false;
 
             CallHandlers();
             CallFinalizeHandlers();
@@ -61,14 +61,14 @@ namespace Basement.OEPFramework.Futures.Util
 
         public override IFuture Run()
         {
-            if (hasRun) return this;
-            hasRun = true;
+            if (isRun) return this;
+            isRun = true;
             CallRunHandlers();
             isDone = _futures.Count == 0;
             
             if (isDone)
             {
-                hasRun = false;
+                isRun = false;
                 CallHandlers();
                 CallFinalizeHandlers();
             }
@@ -88,7 +88,7 @@ namespace Basement.OEPFramework.Futures.Util
             
             isCancelled = false;
             isDone = false;
-            hasRun = false;
+            isRun = false;
             return true;
         }
 
@@ -98,7 +98,7 @@ namespace Basement.OEPFramework.Futures.Util
 
             isExternal = external;
             isDone = true;
-            hasRun = false;
+            isRun = false;
 
             var copy = GetFuturesCopy();
             _futures.Clear();
@@ -125,7 +125,7 @@ namespace Basement.OEPFramework.Futures.Util
             if (isPromise || isCancelled || isDone) return;
             
             isCancelled = true;
-            hasRun = false;
+            isRun = false;
 
             var copy = GetFuturesCopy();
             _futures.Clear();

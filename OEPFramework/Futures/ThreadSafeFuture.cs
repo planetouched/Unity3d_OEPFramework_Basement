@@ -8,7 +8,7 @@ namespace Basement.OEPFramework.Futures
         private readonly object _syncRoot;
         public bool isCancelled { get; private set; }
         public bool isDone { get; private set; }
-        public bool hasRun { get; private set; }
+        public bool isRun { get; private set; }
         public bool isExternal { get; private set;}
         public bool isPromise { get; private set; }
 
@@ -63,7 +63,7 @@ namespace Basement.OEPFramework.Futures
             bool call = false;
             lock (_syncRoot)
             {
-                if (!hasRun)
+                if (!isRun)
                     onRun += method;
                 else
                     call = true;
@@ -178,8 +178,8 @@ namespace Basement.OEPFramework.Futures
         {
             lock (_syncRoot)
             {
-                if (hasRun || isCancelled || isDone) return this;
-                hasRun = true;
+                if (isRun || isCancelled || isDone) return this;
+                isRun = true;
             }
 
             OnRun();
@@ -208,7 +208,7 @@ namespace Basement.OEPFramework.Futures
             
                 isCancelled = false;
                 isDone = false;
-                hasRun = false;
+                isRun = false;
                 return true;
             }
         }
