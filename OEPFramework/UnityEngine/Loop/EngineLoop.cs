@@ -73,6 +73,11 @@ namespace Basement.OEPFramework.UnityEngine.Loop
             }
         }
 
+        public void Refresh()
+        {
+            ModifyIfNeeded();
+        }
+
         private void InnerCall(List<LoopBehaviour> loops)
         {
             for (int i = 0; i < loops.Count; i++)
