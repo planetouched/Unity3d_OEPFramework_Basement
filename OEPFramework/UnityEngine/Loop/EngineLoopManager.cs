@@ -41,6 +41,16 @@ namespace Basement.OEPFramework.UnityEngine.Loop
             return loop;
         }
 
+        public static void Refresh()
+        {
+            var loops = LoopsCount();
+            for (int i = 0; i < loops; i++)
+            {
+                var loop = _loops[i];
+                loop.Refresh();
+            }
+        }
+
         public static void Execute(int loopType)
         {
 #if UNITY_EDITOR
