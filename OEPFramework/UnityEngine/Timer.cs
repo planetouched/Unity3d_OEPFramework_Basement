@@ -8,11 +8,11 @@ namespace Basement.OEPFramework.UnityEngine
 {
     public sealed class Timer : DroppableItemBase
     {
-        public delegate void OnTimeUp(object o);
-        public delegate void OnTimeUpVoid();
-        public OnTimeUp onTimeUpEvent;
-        public OnTimeUpVoid onTimeUpVoidEvent;
+        public event Action<object> timerParamEvent;
+        public event Action timerEvent;
         
+        private static readonly List<Timer>[] _add = new List<Timer>[64]; 
+        private static readonly List<Timer>[] _remove = new List<Timer>[64]; 
         private static readonly List<Timer>[] _timers = new List<Timer>[64];
         private static DateTime _lastTime;
 
@@ -32,16 +32,15 @@ namespace Basement.OEPFramework.UnityEngine
             for (int i = 0; i < 64; i++)
             {
                 _timers[i] = new List<Timer>();
+                _add[i] = new List<Timer>();
+                _remove[i] = new List<Timer>();
             }
         }
 
         private void Call()
         {
-            if (onTimeUpEvent != null)
-                onTimeUpEvent(_firedObj);
-
-            if (onTimeUpVoidEvent != null)
-                onTimeUpVoidEvent();
+            timerParamEvent?.Invoke(_firedObj);
+            timerEvent?.Invoke();
         }
 
         public void Pause()
@@ -59,47 +58,51 @@ namespace Basement.OEPFramework.UnityEngine
             _work = true;
         }
 
-        public static Timer Create(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int engineLoop = -1)
+        public static Timer Create(float sec, Action<object> method, object obj, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
-            return new Timer(sec, func, obj, dropper, once, false, engineLoop);
+            return new Timer(sec, method, obj, dropper, once, false, engineLoop);
         }
 
-        public static Timer Create(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int engineLoop = -1)
+        public static Timer Create(float sec, Action method, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
-            return new Timer(sec, func, dropper, once, false, engineLoop);
+            return new Timer(sec, method, dropper, once, false, engineLoop);
         }
 
-        public static Timer CreateRealtime(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, int engineLoop = -1)
+        public static Timer CreateRealtime(float sec, Action<object> method, object obj, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
-            return new Timer(sec, func, obj, dropper, once, true, engineLoop);
+            return new Timer(sec, method, obj, dropper, once, true, engineLoop);
         }
 
-        public static Timer CreateRealtime(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, int engineLoop = -1)
+        public static Timer CreateRealtime(float sec, Action method, IDroppableItem dropper, bool once = false, int engineLoop = -1)
         {
-            return new Timer(sec, func, dropper, once, true, engineLoop);
+            return new Timer(sec, method, dropper, once, true, engineLoop);
         }
 
-        private Timer(float sec, OnTimeUp func, object obj, IDroppableItem dropper, bool once = false, bool realtime = false, int engineLoop = -1)
+        private Timer(float sec, Action<object> method, object obj, IDroppableItem dropper, bool once = false, bool realtime = false, int engineLoop = -1)
         {
-            Init(sec, null, func, obj, dropper, once, realtime, engineLoop == -1 ? Loops.TIMER : engineLoop);
+            Init(sec, null, method, obj, dropper, once, realtime, engineLoop == -1 ? Loops.TIMER : engineLoop);
         }
 
-        private Timer(float sec, OnTimeUpVoid func, IDroppableItem dropper, bool once = false, bool realtime = false, int engineLoop = -1)
+        private Timer(float sec, Action method, IDroppableItem dropper, bool once = false, bool realtime = false, int engineLoop = -1)
         {
-            Init(sec, func, null, null, dropper, once, realtime, engineLoop == -1 ? Loops.TIMER : engineLoop);
+            Init(sec, method, null, null, dropper, once, realtime, engineLoop == -1 ? Loops.TIMER : engineLoop);
         }
 
-        private void Init(float sec, OnTimeUpVoid funcVoid, OnTimeUp func, object obj, IDroppableItem timerDropper, bool onceCall, bool realtimeTimer, int engineLoop)
+        private void Init(float sec, Action method, Action<object> methodParam, object param, IDroppableItem timerDropper, bool onceCall, bool realtimeTimer, int engineLoop)
         {
-            if (funcVoid != null)
-                onTimeUpVoidEvent = funcVoid;
+            if (method != null)
+            {
+                timerEvent += method;
+            }
 
-            if (func != null)
-                onTimeUpEvent = func;
+            if (methodParam != null)
+            {
+                timerParamEvent += methodParam;
+            }
 
             _once = onceCall;
             _realtime = realtimeTimer;
-            _firedObj = obj;
+            _firedObj = param;
             _engineLoop = engineLoop;
 
             if (Mathf.Approximately(sec, 0))
@@ -108,8 +111,8 @@ namespace Basement.OEPFramework.UnityEngine
 
                 if (_once)
                 {
-                    onTimeUpEvent = null;
-                    onTimeUpVoidEvent = null;
+                    timerParamEvent = null;
+                    timerEvent = null;
                     return;
                 }
             }
@@ -122,26 +125,74 @@ namespace Basement.OEPFramework.UnityEngine
                 _dropper = timerDropper;
                 _dropper.onDrop += InternalDrop;
             }
-
-            Sync.Add(() => _timers[_engineLoop].Add(this), _engineLoop);
+            
+            _add[engineLoop].Add(this);
         }
 
+        private static void InnerAdd(int loop)
+        {
+            if (_add[loop].Count > 0)
+            {
+                for (int i = 0; i < _add[loop].Count; i++)
+                {
+                    var timer = _add[loop][i];
+                    if (timer.dropped) continue;
+                    
+                    _timers[loop].Add(timer);
+                }
+                
+                _add[loop].Clear();
+            }
+        }
+
+        private static void InnerRemove(int loop)
+        {
+            if (_remove[loop].Count > 0)
+            {
+                for (int i = 0; i < _remove[loop].Count; i++)
+                {
+                    var timer = _remove[loop][i];
+                    _timers[loop].Remove(timer);
+                }
+                
+                _remove[loop].Clear();
+            }
+        }
+
+        public static void Refresh()
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                InnerAdd(i);
+                InnerRemove(i);
+            }
+        }
+        
         public static void Process(int loop, float deltaTime)
         {
-            Sync.Process(loop);
+            InnerAdd(loop);
+            
             var now = DateTime.UtcNow;
             var dt = deltaTime;
             var dtReal = (float)(now - _lastTime).TotalSeconds;
             _lastTime = now;
-            
-            foreach (var task in _timers[loop])
-                task.TimerProcess(dt, dtReal);
+
+            for (var i = 0; i < _timers[loop].Count; i++)
+            {
+                var timer = _timers[loop][i];
+                if (timer.dropped) continue;
+                timer.TimerProcess(dt, dtReal);
+            }
+
+            InnerRemove(loop);
         }
 
         private void TimerProcess(float dt, float dtReal)
         {
             if (!_work) return;
+            
             _timeElapsed += !_realtime ? dt : dtReal;
+            
             if (_timeElapsed >= _timeStep)
             {
                 _timeElapsed -= _timeStep;
@@ -149,11 +200,13 @@ namespace Basement.OEPFramework.UnityEngine
                 Call();
 
                 if (_once)
+                {
                     Drop();
+                }
             }
         }
 
-        private void InternalDrop(IDroppableItem obj)
+        private void InternalDrop(IDroppableItem droppableItem)
         {
             Drop();
         }
@@ -163,15 +216,18 @@ namespace Basement.OEPFramework.UnityEngine
             if (dropped) return;
 
             if (_dropper != null)
+            {
                 _dropper.onDrop -= InternalDrop;
+            }
+
             _dropper = null;
 
             Pause();
 
-            onTimeUpEvent = null;
-            onTimeUpVoidEvent = null;
+            timerParamEvent = null;
+            timerEvent = null;
 
-            Sync.Add(() => _timers[_engineLoop].Remove(this), _engineLoop);
+            _remove[_engineLoop].Add(this);
 
             base.Drop();
         }
