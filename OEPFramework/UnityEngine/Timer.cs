@@ -8,12 +8,18 @@ namespace Basement.OEPFramework.UnityEngine
 {
     public sealed class Timer : DroppableItemBase
     {
+        private class InnerTimerContainer
+        {
+            public readonly List<Timer> toAdd = new List<Timer>(); 
+            public readonly List<Timer> toRemove = new List<Timer>(); 
+            public readonly List<Timer> toProcess = new List<Timer>(); 
+        }
+        
         public event Action<object> timerParamEvent;
         public event Action timerEvent;
-        
-        private static readonly List<Timer>[] _add = new List<Timer>[64]; 
-        private static readonly List<Timer>[] _remove = new List<Timer>[64]; 
-        private static readonly List<Timer>[] _timers = new List<Timer>[64];
+
+        private const int MAX = 64;
+        private static readonly InnerTimerContainer[] _containers = new InnerTimerContainer[MAX]; 
         private static DateTime _lastTime;
 
         private float _timeStep;
@@ -28,13 +34,6 @@ namespace Basement.OEPFramework.UnityEngine
         static Timer()
         {
             _lastTime = DateTime.UtcNow;
-
-            for (int i = 0; i < 64; i++)
-            {
-                _timers[i] = new List<Timer>();
-                _add[i] = new List<Timer>();
-                _remove[i] = new List<Timer>();
-            }
         }
 
         private void Call()
@@ -125,43 +124,49 @@ namespace Basement.OEPFramework.UnityEngine
                 _dropper = timerDropper;
                 _dropper.onDrop += InternalDrop;
             }
-            
-            _add[engineLoop].Add(this);
+
+            _containers[engineLoop] ??= new InnerTimerContainer();
+            _containers[engineLoop].toAdd.Add(this);
         }
 
         private static void InnerAdd(int loop)
         {
-            if (_add[loop].Count > 0)
+            var toAdd = _containers[loop].toAdd;
+            var toProcess = _containers[loop].toProcess;
+            
+            if (toAdd.Count > 0)
             {
-                for (int i = 0; i < _add[loop].Count; i++)
+                for (int i = 0; i < toAdd.Count; i++)
                 {
-                    var timer = _add[loop][i];
+                    var timer = toAdd[i];
                     if (timer.dropped) continue;
-                    
-                    _timers[loop].Add(timer);
+                    toProcess.Add(timer);
                 }
                 
-                _add[loop].Clear();
+                toAdd.Clear();
             }
         }
 
         private static void InnerRemove(int loop)
         {
-            if (_remove[loop].Count > 0)
+            var toRemove = _containers[loop].toRemove;
+            var toProcess = _containers[loop].toProcess;
+            
+            if (toRemove.Count > 0)
             {
-                for (int i = 0; i < _remove[loop].Count; i++)
+                for (int i = 0; i < toRemove.Count; i++)
                 {
-                    var timer = _remove[loop][i];
-                    _timers[loop].Remove(timer);
+                    var timer = toRemove[i];
+                    toProcess.Remove(timer);
                 }
                 
-                _remove[loop].Clear();
+                toRemove.Clear();
             }
         }
 
         public static void Refresh()
         {
-            for (int i = 0; i < 64; i++)
+            for (int i = 0; i < MAX; i++)
             {
                 InnerAdd(i);
                 InnerRemove(i);
@@ -170,16 +175,20 @@ namespace Basement.OEPFramework.UnityEngine
         
         public static void Process(int loop, float deltaTime)
         {
+            if (_containers[loop] == null) return;
+            
             InnerAdd(loop);
             
             var now = DateTime.UtcNow;
             var dt = deltaTime;
             var dtReal = (float)(now - _lastTime).TotalSeconds;
             _lastTime = now;
+            
+            var toProcess = _containers[loop].toProcess;
 
-            for (var i = 0; i < _timers[loop].Count; i++)
+            for (var i = 0; i < toProcess.Count; i++)
             {
-                var timer = _timers[loop][i];
+                var timer = toProcess[i];
                 if (timer.dropped) continue;
                 timer.TimerProcess(dt, dtReal);
             }
@@ -227,7 +236,7 @@ namespace Basement.OEPFramework.UnityEngine
             timerParamEvent = null;
             timerEvent = null;
 
-            _remove[_engineLoop].Add(this);
+            _containers[_engineLoop].toRemove.Add(this);
 
             base.Drop();
         }
