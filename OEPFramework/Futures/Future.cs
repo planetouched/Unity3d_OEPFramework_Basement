@@ -6,6 +6,9 @@
         {
             if (isPromise || isCancelled || isDone)
                 return;
+
+            FuturesRegistry.Complete(this);
+            
             isCancelled = true;
             OnComplete();
             CallHandlers();
@@ -16,6 +19,8 @@
         {
             if (isCancelled || isDone)
                 return;
+            
+            FuturesRegistry.Complete(this);
 
             isExternal = external;
             isDone = true;
@@ -24,9 +29,14 @@
             CallFinalizeHandlers();
         }
 
+        // private static ThreadLocal<Stack<Future>> _futures = new ThreadLocal<Stack<Future>>(() => new Stack<Future>());
+
         public override IFuture Run()
         {
             if (isRun || isCancelled || isDone) return this;
+            
+            FuturesRegistry.Run(this);
+
             isRun = true;
             CallRunHandlers();
             OnRun();
