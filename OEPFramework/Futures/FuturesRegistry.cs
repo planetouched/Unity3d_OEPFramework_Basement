@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Basement.OEPFramework.Futures;
 
+#if FUTURES_ANALYZER
 public static class FuturesRegistry
 {
 
@@ -67,3 +68,33 @@ public static class FuturesRegistry
         }
     }
 }
+
+#else
+
+public static class FuturesRegistry
+{
+    public static event Action<IFuture, IFuture> OnFutureRun;
+    public static event Action<IFuture> OnFutureComplete;
+
+    private static readonly IDisposable s_fakeDisposable = new FakeDisposable();
+
+    public static IDisposable Parent(IFuture parent)
+    {
+        return s_fakeDisposable;
+    }
+
+    public static IFuture Run(this IFuture future, IFuture parent) => future.Run();
+
+    public static void Run(IFuture future) {}
+
+    public static void Complete(IFuture future) {}
+
+    private class FakeDisposable : IDisposable
+    {
+        public void Dispose()
+        {
+        }
+    }
+}
+
+#endif
