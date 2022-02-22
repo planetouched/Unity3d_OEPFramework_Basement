@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using UnityEngine;
 
 namespace Basement.OEPFramework.Futures.Coroutine
 {
@@ -11,8 +12,13 @@ namespace Basement.OEPFramework.Futures.Coroutine
         protected void Next(IFuture obj)
         {
             if (isCancelled) return;
-            
-            if (enumerator.MoveNext())
+
+            bool haveNext;
+            using (FuturesRegistry.Parent(this))
+            {
+                haveNext = enumerator.MoveNext();    
+            }
+            if (haveNext)
             {
                 if (enumerator?.Current != null)
                 {

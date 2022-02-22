@@ -138,5 +138,7 @@ namespace Basement.OEPFramework.Futures
         {
             isPromise = true;
         }
+
+        public override string ToString() => GetType().Name;
     }
 }

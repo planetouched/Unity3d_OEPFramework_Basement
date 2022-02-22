@@ -28,5 +28,10 @@ namespace Basement.OEPFramework.Futures.Coroutine
             base.OnComplete();
             _func = null;
         }
+        
+        public override string ToString()
+        {
+            return $"{base.ToString()} {_func.Method.Name}";
+        }
     }
 }

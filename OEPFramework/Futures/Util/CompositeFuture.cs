@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Basement.OEPFramework.Futures.Util
 {
@@ -41,6 +42,8 @@ namespace Basement.OEPFramework.Futures.Util
         {
             if (isPromise || isCancelled || isDone) return;
             
+            FuturesRegistry.Complete(this);
+            
             isExternal = external;
             
             isDone = true;
@@ -68,6 +71,8 @@ namespace Basement.OEPFramework.Futures.Util
         public override void Cancel()
         {
             if (isPromise || isCancelled || isDone) return;
+            
+            FuturesRegistry.Complete(this);
             
             isCancelled = true;
             isRun = false;
@@ -105,6 +110,8 @@ namespace Basement.OEPFramework.Futures.Util
 
             if (_futures.Count > 0) return;
             
+            FuturesRegistry.Complete(this);
+            
             isDone = true;
             isRun = false;
 
@@ -116,6 +123,8 @@ namespace Basement.OEPFramework.Futures.Util
         {
             if (isRun) return this;
             
+            FuturesRegistry.Run(this);
+
             isRun = true;
             isDone = _futures.Count == 0;
 
@@ -123,6 +132,8 @@ namespace Basement.OEPFramework.Futures.Util
 
             if (isDone)
             {
+                FuturesRegistry.Complete(this);
+                
                 isRun = false;
                 CallHandlers();
                 CallFinalizeHandlers();
@@ -131,7 +142,7 @@ namespace Basement.OEPFramework.Futures.Util
             {
                 foreach (var future in GetFuturesCopyList())
                 {
-                    future.Run();
+                    future.Run(this);
                     future.AddListener(FutureCompletionState.Both, OnFutureComplete);
                 }
             }
@@ -141,6 +152,11 @@ namespace Basement.OEPFramework.Futures.Util
         private List<IFuture> GetFuturesCopyList()
         {
             return new List<IFuture>(_futures);
+        }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()} [{string.Join(", ", _futures.Select(future => future.ToString()))}]";
         }
     }
 }
