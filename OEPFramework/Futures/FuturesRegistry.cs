@@ -9,7 +9,7 @@ public static class FuturesRegistry
     public static event Action<IFuture, IFuture> OnFutureRun;
     public static event Action<IFuture> OnFutureComplete;
 
-    private static readonly Stack<IFuture> s_parentsChain = new Stack<IFuture>();
+    private static readonly Stack<IFuture> _parentsChain = new Stack<IFuture>();
 
     public static IDisposable Parent(IFuture parent)
     {
@@ -26,7 +26,7 @@ public static class FuturesRegistry
 
     public static void Run(IFuture future)
     {
-        var parent = s_parentsChain.Count == 0 ? null : s_parentsChain.Peek();
+        var parent = _parentsChain.Count == 0 ? null : _parentsChain.Peek();
         OnFutureRun?.Invoke(future, parent);
     }
 
@@ -37,18 +37,22 @@ public static class FuturesRegistry
 
     private static void PushParent(IFuture parent)
     {
-        s_parentsChain.Push(parent);
+        _parentsChain.Push(parent);
     }
 
     private static void PopParent(IFuture parent)
     {
-        if (s_parentsChain.Count == 0)
+        if (_parentsChain.Count == 0)
+        {
             throw new Exception($"Trying to pop parent {parent} before push");
+        }
 
-        var oldParent = s_parentsChain.Pop();
-        
+        var oldParent = _parentsChain.Pop();
+
         if (oldParent != parent)
-            throw new Exception($"parents push/pop mismatch. Current = {parent}, last = {s_parentsChain.Peek()}");
+        {
+            throw new Exception($"parents push/pop mismatch. Current = {parent}, last = {_parentsChain.Peek()}");
+        }
     }
 
 
@@ -76,11 +80,11 @@ public static class FuturesRegistry
     public static event Action<IFuture, IFuture> OnFutureRun;
     public static event Action<IFuture> OnFutureComplete;
 
-    private static readonly IDisposable s_fakeDisposable = new FakeDisposable();
+    private static readonly IDisposable _fakeDisposable = new FakeDisposable();
 
     public static IDisposable Parent(IFuture parent)
     {
-        return s_fakeDisposable;
+        return _fakeDisposable;
     }
 
     public static IFuture Run(this IFuture future, IFuture parent) => future.Run();
