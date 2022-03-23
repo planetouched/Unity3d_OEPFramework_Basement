@@ -123,6 +123,26 @@ namespace Basement.BLFramework.Core.Factories
 
             return (TRet)_defaultFactory.Build(type, rawNode, context);
         }
+        
+        public static TRet Build<TRet, T1>(string key, RawNode rawNode, IContext context, T1 param)
+        {
+            Type type = typeof(TRet);
+            IFactory factory;
+            if (_factories.TryGetValue(type, out factory))
+                return (TRet)factory.Build(key, rawNode, context, param);
+
+            return (TRet)_defaultFactory.Build(type, rawNode, context, param);
+        }
+        
+        public static TRet Build<TRet, T1, T2>(string key, RawNode rawNode, IContext context, T1 param1, T2 param2)
+        {
+            Type type = typeof(TRet);
+            IFactory factory;
+            if (_factories.TryGetValue(type, out factory))
+                return (TRet)factory.Build(key, rawNode, context, param1, param2);
+
+            return (TRet)_defaultFactory.Build(type, rawNode, context, param1, param2);
+        }
       
         public static TRet Build<TRet>(RawNode rawNode)
         {
@@ -140,6 +160,24 @@ namespace Basement.BLFramework.Core.Factories
                 return Build<TRet>(rawNode.GetString("type"), rawNode, context);
 
             return (TRet)_defaultFactory.Build(baseType, rawNode, context);
+        }
+        
+        public static TRet Build<TRet, T1>(RawNode rawNode, IContext context, T1 param)
+        {
+            Type baseType = typeof(TRet);
+            if (rawNode.CheckKey("type"))
+                return Build<TRet, T1>(rawNode.GetString("type"), rawNode, context, param);
+
+            return (TRet)_defaultFactory.Build(baseType, rawNode, context, param);
+        }
+        
+        public static TRet Build<TRet, T1, T2>(RawNode rawNode, IContext context, T1 param1, T2 param2)
+        {
+            Type baseType = typeof(TRet);
+            if (rawNode.CheckKey("type"))
+                return Build<TRet, T1, T2>(rawNode.GetString("type"), rawNode, context, param1, param2);
+
+            return (TRet)_defaultFactory.Build(baseType, rawNode, context, param1, param2);
         }
 
         #endregion
