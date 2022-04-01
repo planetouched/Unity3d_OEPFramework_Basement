@@ -16,7 +16,7 @@ namespace Basement.BLFramework.Core.Reference.Description
         {
         }
 
-        private TDescription GetDescription(string collectionKey)
+        private TDescription GetDescription(string collectionKey, bool init = true)
         {
             IDescription value;
 
@@ -30,8 +30,16 @@ namespace Basement.BLFramework.Core.Reference.Description
             
             value = Factory(node.GetNode(collectionKey));
             AddChild(value);
-            value.Initialization();
+            if (init)
+            {
+                value.Initialization();
+            }
             return (TDescription)value;
+        }
+
+        public override IDescription Build(string collectionKey)
+        {
+            return GetDescription(collectionKey, false);
         }
 
         public IEnumerator<KeyValuePair<string, TDescription>> GetEnumerator()

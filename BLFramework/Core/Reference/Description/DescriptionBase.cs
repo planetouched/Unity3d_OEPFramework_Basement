@@ -47,6 +47,11 @@ namespace Basement.BLFramework.Core.Reference.Description
         {
         }
 
+        public virtual IDescription Build(string collectionKey)
+        {
+            return null;
+        }
+
         protected IDictionary<string, IDescription> GetChildren()
         {
             return _items ?? (_items = new Dictionary<string, IDescription>());

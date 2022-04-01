@@ -35,9 +35,16 @@ namespace Basement.BLFramework.Core.Model
                     return model;
                 }
 
-                var description = (TDescription)dataSource.GetChild(collectionKey);
+                var isExist = dataSource.Exist(collectionKey); 
+                var description = (TDescription)dataSource.Build(collectionKey);
                 model = Factory(_initNode.GetNode(collectionKey), description);
                 AddChild(model);
+
+                if (!isExist)
+                {
+                    description.Initialization();
+                }
+                
                 model.Initialization();
 
                 return model;

@@ -11,5 +11,6 @@ namespace Basement.BLFramework.Core.Reference.Description
         RawNode GetNode();
         string GetDescriptionPath();
         void Initialization();
+        IDescription Build(string collectionKey);
     }
 }
