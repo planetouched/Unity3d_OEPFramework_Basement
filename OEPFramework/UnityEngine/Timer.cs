@@ -34,6 +34,10 @@ namespace Basement.OEPFramework.UnityEngine
         static Timer()
         {
             _lastTime = DateTime.UtcNow;
+            for (int i = 0; i < MAX; i++)
+            {
+                _containers[i] = new InnerTimerContainer();
+            }
         }
 
         private void Call()
@@ -125,7 +129,6 @@ namespace Basement.OEPFramework.UnityEngine
                 _dropper.onDrop += InternalDrop;
             }
 
-            _containers[engineLoop] ??= new InnerTimerContainer();
             _containers[engineLoop].toAdd.Add(this);
         }
 
