@@ -47,7 +47,7 @@ namespace Basement.OEPFramework.Futures.Util
 
             if (_futures.Count > 0)
             {
-                _futures[0].Run();
+                _futures[0].Run(this);
                 _futures[0].AddListener(FutureCompletionState.Both, OnFutureComplete);
                 return;
             }
@@ -62,6 +62,9 @@ namespace Basement.OEPFramework.Futures.Util
         public override IFuture Run()
         {
             if (isRun) return this;
+            
+            FuturesRegistry.Run(this);
+            
             isRun = true;
             CallRunHandlers();
             isDone = _futures.Count == 0;
@@ -74,9 +77,8 @@ namespace Basement.OEPFramework.Futures.Util
             }
             else
             {
-                _futures[0].Run();
+                _futures[0].Run(this);
                 _futures[0].AddListener(FutureCompletionState.Both, OnFutureComplete);
-
             }
             
             return this;
@@ -95,6 +97,8 @@ namespace Basement.OEPFramework.Futures.Util
         public override void Complete(bool external = false)
         {
             if (isPromise || isCancelled || isDone) return;
+            
+            FuturesRegistry.Complete(this);
 
             isExternal = external;
             isDone = true;
@@ -123,6 +127,8 @@ namespace Basement.OEPFramework.Futures.Util
         public override void Cancel()
         {
             if (isPromise || isCancelled || isDone) return;
+            
+            FuturesRegistry.Complete(this);
             
             isCancelled = true;
             isRun = false;
